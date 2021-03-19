@@ -19,4 +19,8 @@ public class UserService {
         }
         return user;
     }
+
+    public  boolean identifyLogin(String userNumber,String userPwd){
+        return false;
+    }
 }

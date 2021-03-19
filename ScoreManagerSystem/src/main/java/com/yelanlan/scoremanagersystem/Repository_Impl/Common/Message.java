@@ -10,6 +10,15 @@ public class Message implements IMessage {
 
     public Message() {
     }
+    public Message(boolean success,String msg){
+        this.success = success;
+        this.msg = msg;
+    }
+    public  Message(boolean success,String msg,Object data){
+        this.success = success;
+        this.msg = msg;
+        this.data = data;
+    }
 
     public Message(String code, String msg, Object data, boolean success) {
         this.code = code;
