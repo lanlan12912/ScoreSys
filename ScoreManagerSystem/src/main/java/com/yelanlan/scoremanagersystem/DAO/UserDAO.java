@@ -1,7 +1,7 @@
 package com.yelanlan.scoremanagersystem.DAO;
 
 
-import com.yelanlan.scoremanagersystem.Repository_Impl.User;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 

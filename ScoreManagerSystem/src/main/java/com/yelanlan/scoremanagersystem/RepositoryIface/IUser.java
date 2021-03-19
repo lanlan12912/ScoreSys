@@ -1,4 +1,4 @@
-package com.yelanlan.scoremanagersystem.Repository_Iface;
+package com.yelanlan.scoremanagersystem.RepositoryIface;
 
 public interface IUser {
     public String getUserId();

@@ -1,4 +1,4 @@
-package com.yelanlan.scoremanagersystem.Repository_Iface.Common;
+package com.yelanlan.scoremanagersystem.RepositoryIface.Common;
 
 public interface IMessage {
     public String getCode();

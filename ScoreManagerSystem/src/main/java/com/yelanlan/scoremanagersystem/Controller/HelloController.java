@@ -1,7 +1,7 @@
 package com.yelanlan.scoremanagersystem.Controller;
 
-import com.yelanlan.scoremanagersystem.Repository_Impl.*;
-import com.yelanlan.scoremanagersystem.Service_Impl.UserService;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.*;
+import com.yelanlan.scoremanagersystem.ServiceImpl.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;

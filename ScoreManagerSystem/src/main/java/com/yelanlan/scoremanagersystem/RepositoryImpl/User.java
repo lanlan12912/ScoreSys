@@ -1,4 +1,4 @@
-package com.yelanlan.scoremanagersystem.Repository_Impl;
+package com.yelanlan.scoremanagersystem.RepositoryImpl;
 
 import javax.persistence.*;
 import java.io.Serializable;

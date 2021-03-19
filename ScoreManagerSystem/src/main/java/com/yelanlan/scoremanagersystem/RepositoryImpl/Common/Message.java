@@ -1,6 +1,6 @@
-package com.yelanlan.scoremanagersystem.Repository_Impl.Common;
+package com.yelanlan.scoremanagersystem.RepositoryImpl.Common;
 
-import com.yelanlan.scoremanagersystem.Repository_Iface.Common.IMessage;
+import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 
 public class Message implements IMessage {
     private String code;//返回码

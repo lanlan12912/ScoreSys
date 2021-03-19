@@ -1,12 +1,13 @@
-package com.yelanlan.scoremanagersystem.Service_Impl;
+package com.yelanlan.scoremanagersystem.ServiceImpl;
 
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
-import com.yelanlan.scoremanagersystem.Repository_Impl.User;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
+import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
     @Autowired
     UserDAO userDAO ;
 
@@ -20,6 +21,7 @@ public class UserService {
         return user;
     }
 
+    @Override
     public  boolean identifyLogin(String userNumber,String userPwd){
         return false;
     }
