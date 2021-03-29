@@ -59,20 +59,49 @@
       methods: {
         handleSubmit(name) {
           let param = {
-            number:"1516515"
-          };
-          let number="1516515"
+            userNumber:this.formInline.user,
+            userPwd:this.formInline.password
+          }
           this.$refs[name].validate((valid) => {
             if (valid) {
-              this.$http.post('/hello/say',param).then(res => {
-                console.info('后台返回的数据', res);
+              this.$http.post('/login',param).then(res => {
+                 console.log("token")
+               if(res.success){
+                  // this.setToken({token: resu.data.message });
+                 
+                  // this.$store.commit('setToken', res.data.data.token)
+                  this.$router.push({path:'/home'})
+                  this.$Message.success(res.msg);
+               }else{
+                 this.$Message.error(res.msg);
+               }
               }).catch(err => {
-
+                console.log(1111)
+                this.$Message.error(res.msg);
               });
             } else {
               this.$Message.error('登录失败');
             }
           });
+        },
+        saveUserInfo(){
+          // let param = {
+            let user={
+              userName:"叶兰兰",
+              userRole:"STUDENT",
+              userTeleno:"1254487978",
+              userDesc:"本科生"
+            };
+          // }
+          this.$http.post("/saveUser",user).then(
+            res =>{
+              if(res.success){
+                this.$Message.success(res.msg);
+              }else{
+                this.$Message.error(res.msg);
+              }
+            }
+          )
         }
       }
     }

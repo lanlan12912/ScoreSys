@@ -1,17 +1,22 @@
 package com.yelanlan.scoremanagersystem.RepositoryImpl;
 
-import javax.persistence.*;
+import com.yelanlan.scoremanagersystem.RepositoryIface.IUser;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
+import java.sql.Timestamp;
+
 @Entity
 @Table(name="user")
-@NamedQueries({
-        @NamedQuery(name = "UserDAO.findByUserID",query = "from User u where u.userId = ?0")
-})
-public class User implements Serializable {
+//@NamedQueries({
+//        @NamedQuery(name = "UserDAO.findByUserID",query = "from User u where u.userId = ?0")
+//})
+public class User implements IUser,Serializable {
     private static final long serialVersionUID = -7339710774166090561L;
     @Id
-    @Column(name = "user_id")
-    private String userId;//主键ID
     @Column(name = "user_number")
     private String userNumber;//用户账号
     @Column(name = "user_name")
@@ -19,30 +24,29 @@ public class User implements Serializable {
     @Column(name = "user_pwd")
     private String userPwd;//用户密码
     @Column(name = "user_state")
-    private String userState;//用户状态（0：停用，1：启用）
-    @Column(name = "user_isadmin")
-    private String userIsadmin;//0：学生；1：老师；2、教师；3：辅导员；4、系统管理员；
+    private String userState;//用户状态（停用，启用）
+    @Column(name = "user_role")
+    private String userRole;//学生；老师；教师；辅导员；系统管理员；
     @Column(name = "user_teleno")
     private String userTeleno;//固定电话号码
     @Column(name = "user_crtdate")
-    private String userCrtdate;//创建时间
+    private Timestamp userCrtdate;//创建时间
     @Column(name = "failed_login_count")
-    private String failedLoginCount;//登录失败次数
+    private Integer failedLoginCount;//登录失败次数
     @Column(name = "failed_login_time")
-    private String failedLoginTime;//登录失败时间
+    private Timestamp failedLoginTime;//登录失败时间
     @Column(name = "user_desc")
     private String userDesc;//描述
 
     public User() {
     }
 
-    public User(String userId, String userNumber, String userName, String userPwd, String userState, String userIsadmin, String userTeleno, String userCrtdate, String failedLoginCount, String failedLoginTime, String userDesc) {
-        this.userId = userId;
+    public User( String userNumber, String userName, String userPwd, String userState, String userRole, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc) {
         this.userNumber = userNumber;
         this.userName = userName;
         this.userPwd = userPwd;
         this.userState = userState;
-        this.userIsadmin = userIsadmin;
+        this.userRole = userRole;
         this.userTeleno = userTeleno;
         this.userCrtdate = userCrtdate;
         this.failedLoginCount = failedLoginCount;
@@ -50,90 +54,103 @@ public class User implements Serializable {
         this.userDesc = userDesc;
     }
 
-    public String getUserId() {
-        return userId;
-    }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
+    @Override
     public String getUserNumber() {
         return userNumber;
     }
 
+    @Override
     public void setUserNumber(String userNumber) {
         this.userNumber = userNumber;
     }
 
+    @Override
     public String getUserName() {
         return userName;
     }
 
+    @Override
     public void setUserName(String userName) {
         this.userName = userName;
     }
 
+    @Override
     public String getUserPwd() {
         return userPwd;
     }
 
+    @Override
     public void setUserPwd(String userPwd) {
         this.userPwd = userPwd;
     }
 
+    @Override
     public String getUserState() {
         return userState;
     }
 
+    @Override
     public void setUserState(String userState) {
         this.userState = userState;
     }
 
-    public String getUserIsadmin() {
-        return userIsadmin;
+    @Override
+    public String getUserRole() {
+        return userRole;
     }
 
-    public void setUserIsadmin(String userIsadmin) {
-        this.userIsadmin = userIsadmin;
+    @Override
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
     }
 
+    @Override
     public String getUserTeleno() {
         return userTeleno;
     }
 
+    @Override
     public void setUserTeleno(String userTeleno) {
         this.userTeleno = userTeleno;
     }
 
-    public String getUserCrtdate() {
+    @Override
+    public Timestamp getUserCrtdate() {
         return userCrtdate;
     }
 
-    public void setUserCrtdate(String userCrtdate) {
+    @Override
+    public void setUserCrtdate(Timestamp userCrtdate) {
         this.userCrtdate = userCrtdate;
     }
 
-    public String getFailedLoginCount() {
+    @Override
+    public Integer getFailedLoginCount() {
         return failedLoginCount;
     }
 
-    public void setFailedLoginCount(String failedLoginCount) {
+    @Override
+    public void setFailedLoginCount(Integer failedLoginCount) {
         this.failedLoginCount = failedLoginCount;
     }
 
-    public String getFailedLoginTime() {
+    @Override
+    public Timestamp getFailedLoginTime() {
         return failedLoginTime;
     }
 
-    public void setFailedLoginTime(String failedLoginTime) {
+    @Override
+    public void setFailedLoginTime(Timestamp failedLoginTime) {
         this.failedLoginTime = failedLoginTime;
     }
 
+    @Override
     public String getUserDesc() {
         return userDesc;
     }
 
+    @Override
     public void setUserDesc(String userDesc) {
         this.userDesc = userDesc;
     }

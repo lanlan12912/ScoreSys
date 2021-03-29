@@ -1,8 +1,8 @@
 package com.yelanlan.scoremanagersystem.RepositoryIface;
 
+import java.sql.Timestamp;
+
 public interface IUser {
-    public String getUserId();
-    public void setUserId(String userId);
     public String getUserNumber();
     public void setUserNumber(String userNumber);
     public String getUserName();
@@ -11,16 +11,16 @@ public interface IUser {
     public void setUserPwd(String userPwd);
     public String getUserState();
     public void setUserState(String userState);
-    public String getUserIsadmin();
-    public void setUserIsadmin(String userIsadmin);
+    public String getUserRole();
+    public void setUserRole(String userRole);
     public String getUserTeleno();
     public void setUserTeleno(String userTeleno);
-    public String getUserCrtdate();
-    public void setUserCrtdate();
-    public String getFailedLoginCount();
-    public void setFailedLoginCount(String failedLoginCount);
-    public String getFailedLoginTime();
-    public void setFailedLoginTime(String failedLoginTime);
+    public Timestamp getUserCrtdate();
+    public void setUserCrtdate(Timestamp userCrtdate);
+    public Integer getFailedLoginCount();
+    public void setFailedLoginCount(Integer failedLoginCount);
+    public Timestamp getFailedLoginTime();
+    public void setFailedLoginTime(Timestamp failedLoginTime);
     public String getUserDesc();
     public void setUserDesc(String userDesc);
 

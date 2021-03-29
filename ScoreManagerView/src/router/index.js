@@ -3,7 +3,7 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
-export default new Router({
+export const router =  new Router({
   routes: [
     
     { path: '/', redirect: '/login' },
@@ -11,6 +11,11 @@ export default new Router({
       path: '/login',
       name: 'login',
       component:() => import('@/components/Login')
+    },
+    {
+      path: '/home', 
+      name:'home',
+      component:() => import('@/components/home')
     },
     {
       path: '*',
@@ -27,3 +32,23 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach((to, from, next) => {
+  if (to.path === '/login') {//跳转到登陆页面放行
+    next();
+  } else {
+    let token = window.localStorage.getItem('token');
+    if (token === 'null' || token === '') {//跳转到其他页面需要token
+      next('/login');
+    } else {
+      next();
+    }
+  }
+});
+
+router.afterEach((to) => {
+
+});
+
+Vue.prototype.$routers = router;
+export default router;
