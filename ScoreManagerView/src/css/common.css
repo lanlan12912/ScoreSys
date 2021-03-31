@@ -1,0 +1,18 @@
+/* 首页最上面的标签 */
+.tags-card .ivu-card-body{
+    padding:0px;
+}
+/* 四周无边框table */
+.no-border-table{
+    border:0px;
+}
+    .no-border-table .ivu-table:after{
+width: 0px;
+}
+    .no-border-table .ivu-table:before{
+height: 0px;
+}
+/* table中row的字体为删除线 */
+.table-info-row-del-line{
+    text-decoration: line-through;
+}

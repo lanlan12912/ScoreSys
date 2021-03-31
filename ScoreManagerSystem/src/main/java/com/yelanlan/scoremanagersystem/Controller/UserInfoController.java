@@ -3,7 +3,7 @@ package com.yelanlan.scoremanagersystem.Controller;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
-import com.yelanlan.scoremanagersystem.ServiceImpl.UserService;
+import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import com.yelanlan.scoremanagersystem.Utils.ParamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserInfoController {
     @Autowired
-    UserService userService;
+    IUserService userService;
 
     @RequestMapping("/saveUser")
     public IMessage saveUser(@RequestBody User user){
@@ -29,6 +29,30 @@ public class UserInfoController {
             }else {
                 return new Message(false,"保存失败");
             }
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    @RequestMapping("/getCurrentUser")
+    public User getCurrentUser(){
+        return userService.getCurrentUser();
+    }
+
+    /**
+     * 修改密码
+     */
+    @RequestMapping("/modifyPwd")
+    public IMessage modifyPwd(String userNumber,String oldPwd,String newPwd){
+        try{
+            if(ParamUtils.allNotNull(userNumber,oldPwd,newPwd)){
+                return new Message(false,"请将信息填写完整");
+            }
+            if(newPwd.equals(oldPwd)){
+                return new Message(false,"新密码不能与旧密码相同");
+            }
+            return userService.modifyPwd(userNumber,oldPwd,newPwd);
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");

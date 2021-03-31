@@ -37,11 +37,13 @@ public class User implements IUser,Serializable {
     private Timestamp failedLoginTime;//登录失败时间
     @Column(name = "user_desc")
     private String userDesc;//描述
+    @Column(name = "head_avatar")
+    private String headAvatar;//用户头像
 
     public User() {
     }
 
-    public User( String userNumber, String userName, String userPwd, String userState, String userRole, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc) {
+    public User(String userNumber, String userName, String userPwd, String userState, String userRole, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc, String headAvatar) {
         this.userNumber = userNumber;
         this.userName = userName;
         this.userPwd = userPwd;
@@ -52,8 +54,8 @@ public class User implements IUser,Serializable {
         this.failedLoginCount = failedLoginCount;
         this.failedLoginTime = failedLoginTime;
         this.userDesc = userDesc;
+        this.headAvatar = headAvatar;
     }
-
 
     @Override
     public String getUserNumber() {
@@ -153,5 +155,15 @@ public class User implements IUser,Serializable {
     @Override
     public void setUserDesc(String userDesc) {
         this.userDesc = userDesc;
+    }
+
+    @Override
+    public String getHeadAvatar() {
+        return headAvatar;
+    }
+
+    @Override
+    public void setHeadAvatar(String headAvatar) {
+        this.headAvatar = headAvatar;
     }
 }

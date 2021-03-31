@@ -23,5 +23,6 @@ public interface IUser {
     public void setFailedLoginTime(Timestamp failedLoginTime);
     public String getUserDesc();
     public void setUserDesc(String userDesc);
-
+    public String getHeadAvatar();
+    public void setHeadAvatar(String headAvatar);
 }

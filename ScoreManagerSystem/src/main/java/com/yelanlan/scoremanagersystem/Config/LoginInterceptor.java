@@ -39,8 +39,15 @@ public class LoginInterceptor implements HandlerInterceptor {
             if(uris.contains(environment.getProperty("server.servlet.context-path")+"/login")){
                 return true;//绕过登录页面
             }else {
+                String token = null;
                 Cookie[] cookie = request.getCookies();
-                String token = String.valueOf(cookie[0].getValue());// 从 http 请求头中取出 token
+                if(cookie.length>0){
+                    for(int i = 0 ; i<cookie.length; i++){
+                        if(cookie[i].getName().equals("token")){
+                            token = String.valueOf(cookie[i].getValue());// 从 http 请求头中取出 token
+                        }
+                    }
+                }
                 if(null != token){
                     //从token中中获取userNumber
                     String userNumber =  JWT.decode(token).getClaim("userNumber").asString();
@@ -51,6 +58,7 @@ public class LoginInterceptor implements HandlerInterceptor {
                                 .build();
                         // 效验TOKEN
                         DecodedJWT jwt = verifier.verify(token);
+                        userService.setCurrentuser(user);//保存当前用户
                         return true;
                     }
                 }
@@ -58,7 +66,8 @@ public class LoginInterceptor implements HandlerInterceptor {
             response.setStatus(401);//请求要求身份验证。 对于需要登录的网页，服务器可能返回此响应。
             return false;
         }catch (Exception e){
-            logger.error("身份验证失败",e.getMessage());
+            e.printStackTrace();
+            logger.error("身份验证失败:"+e.getMessage());
             response.setStatus(403);//未满足前提条件） 服务器未满足请求者在请求中设置的其中一个前提条件。
             return false;
         }
