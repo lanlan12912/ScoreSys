@@ -1,6 +1,7 @@
 import axios from 'axios';
 import router from '../router/index'
-import {Messagae} from 'iview'
+import {Message} from 'iview'
+import store from '../store/store'
 
 var instance = axios.create({
   baseURL: '/scoresys.api',
@@ -8,16 +9,20 @@ var instance = axios.create({
   headers: {
     'Content-Type': 'application/json;charset=UTF-8'
   },
-  withCredentials: true
+  withCredentials: true  // 让ajax携带cookie
 });
 
 
 //http request 拦截器
 instance.interceptors.request.use(
   config => {
-    // 在请求头中加token
-    if (localStorage.getItem('token')) {
-      config.headers.token = localStorage.getItem('token');
+    //token为空的情况下绕过登录的请求，跳转至登陆页面
+    if(store.store.state.token == '' || store.store.state.token == null){
+      if(config.url !== '/login'){//不是登录的请求
+        router.push({path:"/login"})
+        Message.error("请登陆后操作")
+        return false
+      }
     }
     //格式化请求参数
     if (config.method === 'post') {
@@ -26,7 +31,7 @@ instance.interceptors.request.use(
     return config;
   },
   error => {
-    return Promise.reject(err);
+    return Promise.reject(error);
   }
 );
 
@@ -41,14 +46,14 @@ instance.interceptors.response.use(
     if (error.response.status) {
       switch (error.response.status) {
         case 401:
-          Messagae.error("未登录")
+          Message.error("未登录")
           router.push({
             path:"/login"
           })
           break
         case 403:
-          Messagae.error("登录过期，请重新登录")
-          localStorage.removeItem('token')
+          Message.error("登录过期，请重新登录")
+          store.commit("delToken")
           setTimeout(() => {
             router.push({
               path:"/login"

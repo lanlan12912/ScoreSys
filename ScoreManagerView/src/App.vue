@@ -1,20 +1,13 @@
 <template>
   <div id="app">
-    <div class="login" v-if="$route.path=='/login'">
-      <router-view></router-view>
-    </div>
-    <div class="home" v-else>
-      <Home></Home>
-    </div>
+    <router-view></router-view>
   </div>
 </template>
 
 <script>
-import Home from './components/home'
 export default {
   name: 'App',
   components:{
-    Home
   }
 }
 </script>

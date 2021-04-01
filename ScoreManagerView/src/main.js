@@ -6,12 +6,12 @@ import router from './router'
 import iView from 'iview'
 import 'iview/dist/styles/iview.css' // 使用 CSS
 import http from './utils/http'
-import Store from './store/store';
+import store from './store/store';
 
 Vue.use(iView)
 Vue.config.productionTip = false
 Vue.prototype.$http = http
-Vue.use(Store);
+Vue.use(store);
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

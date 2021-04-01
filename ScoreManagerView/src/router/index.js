@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-
 Vue.use(Router)
 
 export const router =  new Router({
@@ -10,12 +9,28 @@ export const router =  new Router({
     {
       path: '/login',
       name: 'login',
+      meta: {
+        title: '综合测评管理系统'
+      },
       component:() => import('@/components/Login')
     },
     {
       path: '/home', 
       name:'home',
-      component:() => import('@/components/home')
+      meta: {
+        title: '首页'
+      },
+      component:() => import('@/components/home'),
+      children:[
+        {
+          path:'/home/menu',
+          name:'menu',
+          meta:{
+            title:'菜单管理'
+          },
+          component:() =>import('@/components/menu-list')
+        }
+      ]
     },
     {
       path: '*',
@@ -38,7 +53,7 @@ router.beforeEach((to, from, next) => {
     next();
   } else {
     let token = window.localStorage.getItem('token');
-    if (token === 'null' || token === '') {//跳转到其他页面需要token
+    if (token === null || token === '') {//跳转到其他页面需要token
       next('/login');
     } else {
       next();

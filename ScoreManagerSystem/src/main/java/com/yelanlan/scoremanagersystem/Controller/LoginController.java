@@ -3,7 +3,7 @@ package com.yelanlan.scoremanagersystem.Controller;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
-import com.yelanlan.scoremanagersystem.ServiceImpl.UserService;
+import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import com.yelanlan.scoremanagersystem.Utils.JwtUtil;
 import com.yelanlan.scoremanagersystem.Utils.ParamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 public class LoginController {
     @Autowired
-    UserService userService;
+    IUserService userService;
 
     @RequestMapping("/login")
     public IMessage Login(@RequestBody Map<String,Object> map, HttpServletResponse response){
@@ -30,7 +30,7 @@ public class LoginController {
                 return new Message(false,"账号密码必能为空");
             }
             //验证用户名，密码是否正确
-            User user = userService.identifyLogin(map.get("userNumber").toString(),map.get("userPwd").toString());
+            User user = userService.identifyLogin(map.get("userNumber").toString(),map.get("userPwd").toString(),false);
             if(null != user){
                 //生成Token令牌
                 Cookie cookie = new Cookie("token", JwtUtil.getToken(user));

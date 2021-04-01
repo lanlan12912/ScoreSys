@@ -6,7 +6,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
-import com.yelanlan.scoremanagersystem.ServiceImpl.UserService;
+import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Autowired
     Environment environment;
     @Autowired
-    UserService userService;
+    IUserService userService;
     private final static Logger logger = LogManager.getLogger();
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
@@ -66,7 +66,6 @@ public class LoginInterceptor implements HandlerInterceptor {
             response.setStatus(401);//请求要求身份验证。 对于需要登录的网页，服务器可能返回此响应。
             return false;
         }catch (Exception e){
-            e.printStackTrace();
             logger.error("身份验证失败:"+e.getMessage());
             response.setStatus(403);//未满足前提条件） 服务器未满足请求者在请求中设置的其中一个前提条件。
             return false;

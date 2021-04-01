@@ -78,7 +78,7 @@ public class UserService implements IUserService {
      * @return
      * */
     @Override
-    public User identifyLogin(String userNumber, String userPwd){
+    public User identifyLogin(String userNumber, String userPwd,boolean isModify){
         User user = null;
         try {
             //先从数据库中查询用户
@@ -93,6 +93,9 @@ public class UserService implements IUserService {
             if(user.getUserPwd().equals(value)){//密码正确，返回用户信息
                 return user;
             }else {//密码不正确，返回null；
+                if(isModify){//修改密码无需锁定账户
+                    return null;
+                }
                 // TODO: 2021/3/30  密码不正确，可以做一些锁定账户的操作
                 return null;
             }
@@ -146,15 +149,17 @@ public class UserService implements IUserService {
             if(user == null){
                 return new Message(false,"用户不存在");
             }
-            //将用户的初始密码加密
+            //验证旧密码是否正确
+            if(null == identifyLogin(user.getUserNumber(),oldPwd,true)){
+                return new Message(false,"密码错误");
+            }
+            //将用户的新密码加密
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             BASE64Encoder baseEncoder = new BASE64Encoder();
-            String password = baseEncoder.encode(md5.digest(initPwd.getBytes("utf-8")));
-            if(user.getUserPwd().equals(password)){
-                return new Message(false,"新密码不能号旧密码一样");
-            }
+            String password = baseEncoder.encode(md5.digest(newPwd.getBytes("utf-8")));
+            //将加密的放入user实体
             user.setUserPwd(password);
-            userDAO.setFixedUserNumber(user.getUserNumber(),user.getUserPwd());
+            userDAO.setFixedUserNumber(user.getUserNumber(),user.getUserPwd());//更新密码
             return new Message(true,"密码修改成功");
         }catch (Exception e){
             e.printStackTrace();

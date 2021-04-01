@@ -1,6 +1,5 @@
 package com.yelanlan.scoremanagersystem.ServiceIface;
 
-import com.yelanlan.scoremanagersystem.RepositoryIface.IUser;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 
@@ -16,9 +15,10 @@ public interface IUserService {
      * 验证登录密码是否正确
      * @param  userNumber
      * @param  userPwd
+     * @param  isModify
      * @return
      * */
-    public IUser identifyLogin(String userNumber, String userPwd);
+    public User identifyLogin(String userNumber, String userPwd,boolean isModify);
 
     /**
      * 保存用户信息，即新建用户时用户信息的初始化

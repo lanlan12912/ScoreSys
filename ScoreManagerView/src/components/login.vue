@@ -65,44 +65,31 @@
           this.$refs[name].validate((valid) => {
             if (valid) {
               this.$http.post('/login',param).then(res => {
-                 console.log("token")
                if(res.success){
-                  // this.setToken({token: resu.data.message });
-                 
-                  // this.$store.commit('setToken', res.data.data.token)
-                  this.$router.push({path:'/home'})
-                  this.$Message.success(res.msg);
+                  //保存token
+                  if(document.cookie){
+                    let cookies = window.document.cookie.split(";")
+                    let cookieName = cookies.filter(item =>{return item.substring(0,5) == "token"} )
+                    if(cookieName.length>0){
+                      let token = cookieName[0].substr(6)
+                      this.$store.commit("setToken",token)
+                    }
+                    this.$router.push({path:'/home'})
+                    this.$Message.success(res.msg);
+                  }else{
+                    this.$Message.error("token已过期");
+                  }
                }else{
-                 this.$Message.error(res.msg);
+                this.$Message.error(res.msg);
                }
               }).catch(err => {
-                console.log(1111)
-                this.$Message.error(res.msg);
+                this.$Message.error(err);
               });
             } else {
               this.$Message.error('登录失败');
             }
           });
         },
-        saveUserInfo(){
-          // let param = {
-            let user={
-              userName:"叶兰兰",
-              userRole:"STUDENT",
-              userTeleno:"1254487978",
-              userDesc:"本科生"
-            };
-          // }
-          this.$http.post("/saveUser",user).then(
-            res =>{
-              if(res.success){
-                this.$Message.success(res.msg);
-              }else{
-                this.$Message.error(res.msg);
-              }
-            }
-          )
-        }
       }
     }
 </script>
