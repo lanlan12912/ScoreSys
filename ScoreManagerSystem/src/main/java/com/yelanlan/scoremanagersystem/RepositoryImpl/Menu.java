@@ -42,6 +42,19 @@ public class Menu implements IMenu, Serializable {
     public Menu() {
     }
 
+    public Menu(String menuId, String menuName, String menuIcon, String menuPath, String type, Integer order, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
+        this.menuId = menuId;
+        this.menuName = menuName;
+        this.menuIcon = menuIcon;
+        this.menuPath = menuPath;
+        this.type = type;
+        this.order = order;
+        this.crtUser = crtUser;
+        this.crtDate = crtDate;
+        this.modifyUser = modifyUser;
+        this.modifyDate = modifyDate;
+    }
+
     public Menu(String menuId, String menuName, String menuIcon, String menuPath, String type, String parentId, Integer leafFlag, Integer order, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
         this.menuId = menuId;
         this.menuName = menuName;

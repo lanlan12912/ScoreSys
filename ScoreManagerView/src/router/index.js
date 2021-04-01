@@ -28,7 +28,7 @@ export const router =  new Router({
           meta:{
             title:'菜单管理'
           },
-          component:() =>import('@/components/menu-list')
+          component:() =>import('@/components/menu/menu-list')
         }
       ]
     },
