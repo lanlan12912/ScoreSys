@@ -23,12 +23,12 @@ export const router =  new Router({
       component:() => import('@/components/home'),
       children:[
         {
-          path:'/home/menu',
-          name:'menu',
+          path:'/home/menulist',
+          name:'menulist',
           meta:{
             title:'菜单管理'
           },
-          component:() =>import('@/components/menu/menu-list')
+          component:() =>import('@/components/menu/menu-mana')
         }
       ]
     },

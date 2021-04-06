@@ -15,10 +15,12 @@ public interface IMenu {
     public void setType(String type);
     public String getParentId();
     public void setParentId(String parentId);
+    public String getParentName();
+    public void setParentName(String parentName);
     public Integer getLeafFlag();
     public void setLeafFlag(Integer leafFlag);
-    public Integer getOrder();
-    public void setOrder(Integer order);
+    public Integer getOrders();
+    public void setOrders(Integer orders);
     public String getCrtUser();
     public void setCrtUser(String crtUser);
     public Timestamp getCrtDate();

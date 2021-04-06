@@ -2,15 +2,15 @@
   <Row class="back">
     <Col>
         <Form ref="formInline" :model="formInline" :rules="ruleInline"  class="inputbox">
-           <FormItem label-width= "5">
+           <FormItem :label-width= "5">
                <p class="tilte">综合测评管理系统</p>
             </FormItem>
-            <FormItem prop="user" label-width= "5">
+            <FormItem prop="user" :label-width= "5">
                 <Input type="text" v-model="formInline.user" placeholder="账号">
                     <Icon type="ios-person-outline" slot="prepend"></Icon>
                 </Input>
             </FormItem>
-            <FormItem prop="password" label-width="5">
+            <FormItem prop="password" :label-width="5">
                 <Input type="password" v-model="formInline.password" placeholder="密码">
                     <Icon type="ios-lock-outline" slot="prepend"></Icon>
                 </Input>

@@ -26,10 +26,12 @@ public class Menu implements IMenu, Serializable {
     private String type;//菜单类型
     @Column(name = "parent_id")
     private String parentId;//父菜单id
+    @Column(name = "parent_name")
+    private String parentName;//父菜单名称
     @Column(name = "leaf_flag")
     private Integer leafFlag;//是否为叶子菜单，1是，0否
-    @Column(name = "order")
-    private Integer order;//排序
+    @Column(name = "orders")
+    private Integer orders;//排序
     @Column(name = "crt_user")
     private String crtUser;//创建人
     @Column(name = "crt_date")
@@ -42,32 +44,42 @@ public class Menu implements IMenu, Serializable {
     public Menu() {
     }
 
-    public Menu(String menuId, String menuName, String menuIcon, String menuPath, String type, Integer order, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
+    public Menu(String menuId, String menuName, String menuIcon, String type, Integer orders, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
         this.menuId = menuId;
         this.menuName = menuName;
         this.menuIcon = menuIcon;
-        this.menuPath = menuPath;
         this.type = type;
-        this.order = order;
+        this.orders = orders;
         this.crtUser = crtUser;
         this.crtDate = crtDate;
         this.modifyUser = modifyUser;
         this.modifyDate = modifyDate;
     }
 
-    public Menu(String menuId, String menuName, String menuIcon, String menuPath, String type, String parentId, Integer leafFlag, Integer order, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
+    public Menu(String menuId, String menuName, String menuIcon, String menuPath, String type, String parentId, String parentName, Integer leafFlag, Integer orders, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
         this.menuId = menuId;
         this.menuName = menuName;
         this.menuIcon = menuIcon;
         this.menuPath = menuPath;
         this.type = type;
         this.parentId = parentId;
+        this.parentName = parentName;
         this.leafFlag = leafFlag;
-        this.order = order;
+        this.orders = orders;
         this.crtUser = crtUser;
         this.crtDate = crtDate;
         this.modifyUser = modifyUser;
         this.modifyDate = modifyDate;
+    }
+
+    @Override
+    public String getParentName() {
+        return parentName;
+    }
+
+    @Override
+    public void setParentName(String parentName) {
+        this.parentName = parentName;
     }
 
     @Override
@@ -141,13 +153,13 @@ public class Menu implements IMenu, Serializable {
     }
 
     @Override
-    public Integer getOrder() {
-        return order;
+    public Integer getOrders() {
+        return orders;
     }
 
     @Override
-    public void setOrder(Integer order) {
-        this.order = order;
+    public void setOrders(Integer orders) {
+        this.orders = orders;
     }
 
     @Override

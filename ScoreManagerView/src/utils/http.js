@@ -54,14 +54,15 @@ instance.interceptors.response.use(
         case 403:
           Message.error("登录过期，请重新登录")
           store.commit("delToken")
-          setTimeout(() => {
+          // setTimeout(() => {
             router.push({
               path:"/login"
             })
-          }, 1000)
+          // }, 1000)
           break
         case 404:
           Messagae.error('网络请求不存在')
+          router.push({path:'/404'})
           break
         default: 
           Message.error(error.response.data.msg)

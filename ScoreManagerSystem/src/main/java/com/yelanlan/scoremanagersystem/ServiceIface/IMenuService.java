@@ -1,5 +1,6 @@
 package com.yelanlan.scoremanagersystem.ServiceIface;
 
+import com.yelanlan.scoremanagersystem.Enum.MenuTypeEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Menu;
 
@@ -26,5 +27,19 @@ public interface IMenuService {
      * @return
      * */
     public IMessage quUserMenuList();
+
+    /**
+     * 获取菜单模块
+     * @param typeEnum
+     * @return
+     * */
+    public IMessage getMenuModule(MenuTypeEnum typeEnum);
+
+    /**
+     * 更新菜单信息
+     * @param map
+     * @return
+     * */
+    public IMessage updateMenu(Map<String,Object> map);
 
 }
