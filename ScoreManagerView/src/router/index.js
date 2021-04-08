@@ -23,12 +23,20 @@ export const router =  new Router({
       component:() => import('@/components/home'),
       children:[
         {
-          path:'/home/menulist',
+          path:'/sys/menulist',
           name:'menulist',
           meta:{
             title:'菜单管理'
           },
-          component:() =>import('@/components/menu/menu-mana')
+          component:() =>import('@/components/sys/menu-mana')
+        },
+        {
+          path:"/sys/rolelist",
+          name:'rolelist',
+          meta:{
+            title:'角色管理'
+          },
+          component:() =>import('@/components/sys/role-mana')
         }
       ]
     },

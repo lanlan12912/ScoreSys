@@ -24,7 +24,7 @@
                     </FormItem>
                     <FormItem label="上级菜单" :label-width="80" prop="parentId">
                         <Dropdown ref="dropdown" trigger="click" placement="bottom-start" style="width:100%" >
-                            <Input v-model="menuInfo.parentName"  :disabled="!modifyFlag" readonly />
+                            <Input v-model="menuInfo.parentName"  :disabled="!modifyFlag" />
                             <DropdownMenu slot="list">
                                 <Tree :data="menuModules" style="line-height: 1.5;  float: left; padding:4px" @on-select-change="selectNode"></Tree>
                             </DropdownMenu>
@@ -34,9 +34,9 @@
                         <Input v-model="menuInfo.orders" type="number" />
                     </FormItem>
                 </Form>
-                <Button type="success" icon ='md-add' @click="addMenu">新增</Button>
+                <Button type="success" icon ='md-add' @click="reset">新增</Button>
                 <Button type="primary" @click="saveMenu">保存</Button>
-                <Button type="error" icon='md-trash'>删除</Button>
+                <Button type="error" icon='md-trash' @click="delMenu">删除</Button>
             </Col>
         </Row>
     </div>
@@ -55,7 +55,7 @@ export default {
                 type:'',
                 parentId:'',
                 parentName:'',
-                orders:'',
+                orders:0,
             },
             menuRule:{
                 menuName:[
@@ -72,9 +72,6 @@ export default {
                 ],
                 parentId:[
                     {required:false, message:'请填写菜单名称', trigger:'blur'}
-                ],
-                orders:[
-                    {required:true, message:'请填写菜单排序', trigger:'blur'}
                 ],
             },
             menuModules:[],
@@ -102,10 +99,30 @@ export default {
             ).catch(err=>{this.$Message.error(err)});        
         },
         delMenu(){
-
+            if(this.menuInfo.menuId){
+                let param = {
+                        menuId:this.menuInfo.menuId
+                    };
+                this.$http.post('/delMenu',param).then(
+                    res => {
+                        if(res.success){
+                            this.$Message.success(res.msg);
+                            this.reset();
+                            this.getMenuModule();
+                        }else{
+                            this.$Message.error(res.msg);
+                        }
+                    }
+                ).catch(error => {this.$Message.error("请求异常")});
+            }
         },
-        addMenu(){
+        reset(){
             this.$refs.menuInfo.resetFields();
+            this.menuInfo.menuId = '';
+            this.menuInfo.parentId='';
+            this.menuInfo.parentName = '';
+            this.menuInfo.menuPath ='';
+            this.menuInfo.orders= '';
             this.modifyFlag = true;
         },
         quMenuInfo(node){
@@ -132,7 +149,7 @@ export default {
             this.$http.post("/getMenuModule",param).then(
                 res => {
                     if(res.success){
-                        this.menuList = res.data;
+                        this.menuModules = res.data;
                     }else{
                         this.$Message.error(res.msg)
                     }
@@ -145,7 +162,7 @@ export default {
             this.$http.post("/getMenuModule",param).then(
                 res => {
                     if(res.success){
-                        this.menuModules = res.data;
+                        this.menuList = res.data;
                     }else{
                         this.$Message.error(res.msg)
                     }
@@ -160,7 +177,8 @@ export default {
                     this.$http.post("/saveMemu",param).then(
                         res =>{
                             if(res.success){
-                                this.$Message.success(res.msg);  
+                                this.$Message.success(res.msg);
+                                this.getMenuModule();  
                             }else{
                                 this.$Message.error(res.msg);
                             }
@@ -169,7 +187,7 @@ export default {
                 }else{
                     this.$Message.error("信息填写不规范")
                 }
-            })
+            });
         }
     }
 }

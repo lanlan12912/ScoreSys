@@ -18,11 +18,13 @@ public class MenuController {
     @Autowired
     private IMenuService menuService;
 
+    /**
+     * 新增或更新菜单的基本信息
+     * */
     @RequestMapping("/saveMemu")
     public IMessage saveMenuInfo(@RequestBody Map<String,Object> map){
         try{
-            if(!ParamUtils.allNotNull(map,map.get("menuName"),map.get("menuIcon"),map.get("type"),
-                    map.get("order"))){
+            if(!ParamUtils.allNotNull(map.get("menuName"),map.get("menuIcon"),map.get("type"),map.get("orders"))){
                 return new Message(false,"参数不完整");
             }
             if(ParamUtils.allNotNull(map.get("menuId"))){
@@ -59,6 +61,9 @@ public class MenuController {
         }
     }
 
+    /**
+     * 查询菜单的基本信息
+     * */
     @RequestMapping("/quMenuInfo")
     public IMessage quMenuInfo(@RequestBody Map<String,Object> map){
         try {
@@ -74,6 +79,22 @@ public class MenuController {
                 message.setData(menu);
                 return message;
             }
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 删除菜单
+     * */
+    @RequestMapping("/delMenu")
+    public IMessage delMenu(@RequestBody Map<String,String> map){
+        try{
+            if(!ParamUtils.allNotNull(map.get("menuId"))){
+                return new Message(true,"请指定菜单Id");
+            }
+            return menuService.delMenu(map.get("menuId"));
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");

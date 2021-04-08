@@ -58,13 +58,15 @@ public class MenuService implements IMenuService {
             Timestamp crtDate = DateUtils.getCurrentTime();
             Menu menu = new Menu(menuId,String.valueOf(map.get("menuName")),String.valueOf(map.get("menuIcon")),String.valueOf(map.get("type")),
                     Integer.parseInt(String.valueOf(map.get("orders"))), currentUser.getUserNumber(),crtDate,currentUser.getUserNumber(),crtDate);
-            if(ParamUtils.allNotNull(map.get("parentId"))){//当父菜单不为空时，该菜单为叶子菜单
+            if(null == map.get("parentId") || "".equals(String.valueOf(map.get("parentId")))){
+                menu.setLeafFlag(0);//1为叶子节点，0为不是叶子节点
+            }else {//当父菜单不为空时，该菜单为叶子菜单
                 menu.setParentId(String.valueOf(map.get("parentId")));
                 menu.setParentName(String.valueOf(map.get("parentName")));
                 menu.setLeafFlag(1);//1为叶子节点，0为不是叶子节点
+            }
+            if(MenuTypeEnum.valueOf(String.valueOf(map.get("type")))== MenuTypeEnum.PAGE){
                 menu.setMenuPath(String.valueOf(map.get("menuPath")));
-            }else{
-                menu.setLeafFlag(0);//1为叶子节点，0为不是叶子节点
             }
           menuDAO.save(menu);//保存菜单信息
             return new Message(true,"保存成功");
@@ -90,18 +92,14 @@ public class MenuService implements IMenuService {
             //获取菜单列表
             switch (UserRoleEnum.valueOf(user.getUserRole())){
                 case ADMIN://系统管理员菜单
-                    menuList = menuDAO.findAll();//所有菜单
+                    menuList = menuDAO.findAllOrOrderByOrders();//所有菜单
                     break;
                 default://其他
                     //根据用户角色查询查询角色被授予的资源有哪些
                     List<RoleRes> roleResList = roleResDAO.findAllByRoleId(user.getUserRole());
+                    List<String> menuIds = roleResList.stream().map(RoleRes::getResId).collect(Collectors.toList());
                     //根据资源id查询出菜单列表
-                    for(RoleRes res :roleResList){
-                        Menu menuobj = menuDAO.findMenuByMenuId(res.getResId()) ;
-                        if(!ParamUtils.allNotNull(menuobj)){
-                            menuList.add(menuobj);
-                        }
-                    }
+                    menuList = menuDAO.findAllByMenuIdIn(menuIds);
                     break;
             }
             //将菜单分层处理
@@ -161,7 +159,7 @@ public class MenuService implements IMenuService {
                  for(MenuDTO menu:menuList){//遍历
                      MenuTreeDTO treeDTO = new MenuTreeDTO(menu.getMenuId(),menu.getMenuName(),false,true);
                      if(menu.getChildPages().size()>0){
-                         treeDTO.setChildren(dealMenuToTree(menu.getChildPages()));
+                         treeDTO.setChildren(dealMenuToTree(menu.getChildPages(),typeEnum));
                      }
                      menuTree.add(treeDTO);
                  }
@@ -179,12 +177,15 @@ public class MenuService implements IMenuService {
      * 处理子菜单为树
      *
      * */
-    public List<MenuTreeDTO> dealMenuToTree(List<MenuDTO> menuList){
+    public List<MenuTreeDTO> dealMenuToTree(List<MenuDTO> menuList,MenuTypeEnum typeEnum){
         List<MenuTreeDTO> lists = new ArrayList<>();
+        if(MenuTypeEnum.MODULE == typeEnum){
+            menuList = menuList.stream().filter(item -> MenuTypeEnum.valueOf(item.getType())== MenuTypeEnum.MODULE).collect(Collectors.toList());//过滤出模块
+        }
         for(MenuDTO menu: menuList){
             MenuTreeDTO dto = new MenuTreeDTO(menu.getMenuId(),menu.getMenuName(),false,true);
             if(menu.getChildPages().size()>0){
-                dealMenuToTree(menu.getChildPages());
+                dealMenuToTree(menu.getChildPages(),typeEnum);
             }
             lists.add(dto);
         }
@@ -210,8 +211,33 @@ public class MenuService implements IMenuService {
             menu.setOrders(Integer.parseInt(String.valueOf(map.get("orders"))));
             menu.setModifyDate(DateUtils.getCurrentTime());
             menu.setModifyUser(userService.getCurrentUser().getUserNumber());
+            //上级菜单与路径不能更改，无需处理
             menuDAO.save(menu);//将更新的菜单信息保存
             return new Message(true,"修改成功");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 根据id删除菜单
+     * @param menuId
+     * @return
+     * */
+    @Override
+    public IMessage delMenu(String menuId){
+        try{
+            //先查看菜单是否存在
+            Menu menu = menuDAO.findMenuByMenuId(menuId);
+            if(!ParamUtils.allNotNull(menu)){
+                return new Message(false,"菜单已不存在");
+            }
+            if (roleResDAO.findAllByResId(menuId).size()>0){
+                return new Message(false,"改菜单已被授权给用户使用，无法删除");
+            }
+            menuDAO.delete(menu);
+            return new Message(true,"删除成功");
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");

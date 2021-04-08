@@ -42,4 +42,10 @@ public interface IMenuService {
      * */
     public IMessage updateMenu(Map<String,Object> map);
 
+    /**
+     * 根据id删除菜单
+     * @param menuId
+     * @return
+     * */
+    public IMessage delMenu(String menuId);
 }
