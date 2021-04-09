@@ -31,6 +31,7 @@ public class LoginInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
         try {
             // 如果不是映射到方法直接通过
+            logger.info("跨域请求--------------------------------"+request.getRequestURI());
             if(!(object instanceof HandlerMethod)){
                 return true;
             }

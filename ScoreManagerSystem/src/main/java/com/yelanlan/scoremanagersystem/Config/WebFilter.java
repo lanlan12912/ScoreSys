@@ -29,7 +29,6 @@ public class WebFilter implements Filter {
         }else {
 
         }
-        logger.info(System.currentTimeMillis()+"跨域请求--------------------------------"+request.getRequestURI());
         chain.doFilter(request,response);
     }
 

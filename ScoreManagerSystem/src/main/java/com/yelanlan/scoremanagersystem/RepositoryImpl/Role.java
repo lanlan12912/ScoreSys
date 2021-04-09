@@ -1,6 +1,7 @@
 package com.yelanlan.scoremanagersystem.RepositoryImpl;
 
 import com.yelanlan.scoremanagersystem.RepositoryIface.IRole;
+import com.yelanlan.scoremanagersystem.Utils.DateUtils;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "role")
@@ -33,6 +35,14 @@ public class Role implements IRole, Serializable {
         this.roleName = roleName;
         this.crtUser = crtUser;
         this.crtDate = crtDate;
+        this.roleDes = roleDes;
+    }
+
+    public Role(String roleId, String roleName, String crtUser, Date crtDate, String roleDes) {
+        this.roleId = roleId;
+        this.roleName = roleName;
+        this.crtUser = crtUser;
+        this.crtDate = DateUtils.formatTOTimestamp(crtDate);
         this.roleDes = roleDes;
     }
 

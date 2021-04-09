@@ -14,6 +14,11 @@ public class DateUtils {
         return  Timestamp.valueOf(dateFormat.format(new Date()));
     }
 
+    public static Timestamp formatTOTimestamp(Date date){
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return Timestamp.valueOf(dateFormat.format(date));
+    }
+
     public static  void main(String[] args){
         System.out.println(getCurrentTime());
     }
