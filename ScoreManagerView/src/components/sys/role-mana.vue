@@ -1,12 +1,34 @@
 <template>
     <div>
         <Row span ='2'>
-            <Button class="grpBtn" type="success" icon='md-add'>新增</Button>
+            <Button class="grpBtn" type="success" icon='md-add' @click="open(false)">新增</Button>
+            <Button class="grpBtn" type="error" icon='ios-trash-outline' @click="delRoles(false)">删除</Button>
         </Row>
         <Row span = '16'>
-            <Table class="table" border :columns="columns" size='small' height='434' :data="data"></Table>
+            <Table ref="roleTable" class="table" border :columns="columns" size='small' height='434' :data="data"></Table>
         </Row>
         <Row class="page" span ='2'><Page :total="100"></Page></Row>
+        <Modal
+            v-model="modal"
+            title="填写角色信息"
+            @on-ok="ok"
+            @on-cancel="cancel">
+            <Form ref="roleInfo" class="roleInfo" :model="roleInfo">
+               <FormItem prop="roleName" :label-width="80" label='角色名称'>
+                    <Input type="text" v-model="roleInfo.roleName"></Input>
+                </FormItem>
+                 <FormItem prop="roleDes" :label-width="80" label="角色描述">
+                    <Input type="textarea" v-model="roleInfo.roleDes"></Input>
+                </FormItem>
+            </Form>
+        </Modal>
+        <Modal
+            v-model="modal1"
+            title="角色授权"
+            @on-ok="authorization"
+            @on-cancel="close">
+            <Tree ref="resTree" :data="menuList" show-checkbox expand-node></Tree>
+        </Modal>
     </div>
 </template>
 <script>
@@ -14,26 +36,44 @@ export default {
     name:'rolelist',
     data(){
         return{
+            roleId:'',
+            menuList:[],
+            roleInfo:{
+                roleId:'',
+                roleName:'',
+                roleDes:''
+            },
+            modal:false,
+            modal1:false,
             columns:[
+                 {
+                    type: 'selection',
+                    width: 60,
+                    align: 'center'
+                },
                 {
                     title:'角色名称',
-                    key:'roleName'
+                    key:'roleName',
+                    width:'150'
                 },
                 {
                     title:'创建人',
-                    key:'crtUser'
-                },
-                {
-                    title:'创建时间',
-                    key:'crtDate'
+                    key:'crtUser',
+                    width:'150'
                 },
                 {
                     title:'角色描述',
                     key:'roleDes'
                 },
                 {
+                    title:'创建时间',
+                    key:'crtDate',
+                    width:'150'
+                },
+                {
                     title:'操作',
                     key:'action',
+                    width:'240',
                     render: (h, params) => {
                             return h('div', [
                                 h('Button', {
@@ -47,10 +87,25 @@ export default {
                                     },
                                     on: {
                                         click: () => {
-                                            this.show(params.index)
+                                            this.showRes(params.row)
                                         }
                                     }
                                 }, '授权'),
+                                h('Button', {
+                                    props: {
+                                        icon:'ios-brush',
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '8px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.open(true,params.row)
+                                        }
+                                    }
+                                }, '修改'),
                                 h('Button', {
                                     props: {
                                         icon:'ios-trash-outline',
@@ -58,11 +113,11 @@ export default {
                                         size: 'small'
                                     },
                                     style: {
-                                        marginLeft: '8px'
+                                        marginRight: '8px'
                                     },
                                     on: {
                                         click: () => {
-                                            this.remove(params.index)
+                                            this.delRoles(true,params.row)
                                         }
                                     }
                                 }, '删除')
@@ -77,6 +132,97 @@ export default {
         this.getAllRolePage();
     },
     methods:{
+        close(){
+            this.modal1 = false;
+        },
+        showRes(role){
+            this.roleId = role.roleId;
+            this.modal1 = true;
+            let param = {
+                roleId:role.roleId
+            }
+            this.$http.post("/getResTree",param).then(
+                res => {
+                    if(res.success){
+                        this.menuList = res.data;
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(error => {this.$Message.error("请求异常")})
+        },
+        authorization(){
+            let nodes = this.$refs.resTree.getCheckedNodes();
+            let resIds = [];
+            nodes.forEach(element => {
+                resIds.push(element.id)
+            });
+            let param = {
+                roleId:this.roleId ,
+                resIds:resIds
+            }
+            this.$http.post("/authMenuToRole",param).then(
+                res => {
+                    if(res.success){
+                        this.$Message.success(res.msg)
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(error => {this.$Message.error("请求异常")})
+        },
+        open(isModify,role){
+            this.modal = true;
+            if(isModify){
+                this.roleInfo = role;
+            }else{
+                this.roleInfo.roleId = '';
+                this.roleInfo.roleName = '';
+                this.roleInfo.roleDes = '';
+            }
+        },
+        ok(){
+            let param = this.roleInfo;
+            this.$http.post("/addRole",param).then(
+                res => {
+                    if(res.success){
+                        this.$Message.success(res.msg)
+                        this.getAllRolePage();
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                    this.cancel();
+                }
+            ).catch(err => {this.$Message.error("请求异常")});
+        },
+        cancel(){
+            this.modal = false;
+            this.getAllRolePage();
+        },
+        delRoles(noSelect,role){
+            let roles = [];
+            if(noSelect){
+                roles.push(role.roleId);
+            }else{
+                this.$refs.roleTable.getSelection().forEach(element => {
+                        roles.push(element.roleId);
+                    }
+                )
+            }
+            let param = {
+                roles:roles
+            }
+            this.$http.post("delRoles",param).then(
+                res => {
+                    if(res.success){
+                        this.$Message.success(res.msg);
+                        this.getAllRolePage();
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(erro => {this.$Message.error("请求异常")})
+        },
         getAllRolePage(){
             let param = {
                 start:1,
@@ -85,8 +231,9 @@ export default {
             this.$http.post('/getAllRoles',param).then(
                 res =>{
                     if(res.success){
-                        console.log(res.data)
                         this.data = res.data.content;
+                        this.data.forEach(element => {
+                            element.crtDate = this.$moment(element.crtDate).format("YYYY-MM-DD HH:mm:ss");                        });
                     }else{
                         this.$Message.error(res.msg);
                     }
@@ -111,5 +258,8 @@ export default {
         float: right;
         height: 10%;
         margin: 0px 10px 10px;
+    }
+    .roleInfo{
+        margin: 20px;
     }
 </style>

@@ -9,6 +9,7 @@ public class MenuTreeDTO implements Serializable {
     private String title;
     private boolean expand;
     private boolean contextmenu;
+    private boolean checked;
     private List<MenuTreeDTO> children;
 
     public MenuTreeDTO() {
@@ -59,5 +60,13 @@ public class MenuTreeDTO implements Serializable {
 
     public void setContextmenu(boolean contextmenu) {
         this.contextmenu = contextmenu;
+    }
+
+    public boolean isChecked() {
+        return checked;
+    }
+
+    public void setChecked(boolean checked) {
+        this.checked = checked;
     }
 }

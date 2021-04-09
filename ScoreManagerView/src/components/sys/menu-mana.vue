@@ -2,8 +2,7 @@
     <div>
         <Row class="menu">
             <Col span='7' class="leftTree">
-                <Tree ref="menuTree" :data="menuList" @on-select-change="quMenuInfo">
-                </Tree>
+                <Tree ref="menuTree" :data="menuList" @on-select-change="quMenuInfo"></Tree>
             </Col>
             <Col span='14' class="rightInfo">
                 <Form  ref="menuInfo" :model="menuInfo" :rules="menuRule">
