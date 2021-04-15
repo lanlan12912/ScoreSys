@@ -37,6 +37,14 @@ export const router =  new Router({
             title:'角色管理'
           },
           component:() =>import('@/components/sys/role-mana')
+        },
+        {
+          path:"/sys/userList",
+          name:'userlist',
+          meta:{
+            title:'用户管理'
+          },
+          component:() =>import('@/components/sys/user-mana')
         }
       ]
     },

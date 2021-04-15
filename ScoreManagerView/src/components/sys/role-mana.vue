@@ -1,19 +1,21 @@
 <template>
-    <div>
+    <div class="role">
         <Row span ='2'>
-            <Button class="grpBtn" type="success" icon='md-add' @click="open(false)">新增</Button>
-            <Button class="grpBtn" type="error" icon='ios-trash-outline' @click="delRoles(false)">删除</Button>
+            <Button class="grpBtn" type="success" size="small" icon='md-add' @click="open(false)">新增</Button>
+            <Button class="grpBtn" type="error" size="small" icon='ios-trash-outline' @click="delRoles(false)">删除</Button>
         </Row>
         <Row span = '16'>
             <Table ref="roleTable" class="table" border :columns="columns" size='small' height='434' :data="data"></Table>
         </Row>
-        <Row class="page" span ='2'><Page :total="100"></Page></Row>
+        <Row class="page" span ='2'>
+            <Page :current="current" :total="total" :page-size="limit" show-total @on-change="getAllRolePage"></Page>
+        </Row>
         <Modal
             v-model="modal"
             title="填写角色信息"
             @on-ok="ok"
             @on-cancel="cancel">
-            <Form ref="roleInfo" class="roleInfo" :model="roleInfo">
+            <Form ref="roleInfo" class="roleInfo" :model="roleInfo" :rules="roleRule">
                <FormItem prop="roleName" :label-width="80" label='角色名称'>
                     <Input type="text" v-model="roleInfo.roleName"></Input>
                 </FormItem>
@@ -32,6 +34,7 @@
     </div>
 </template>
 <script>
+import '../../less/common.less'
 export default {
     name:'rolelist',
     data(){
@@ -42,6 +45,14 @@ export default {
                 roleId:'',
                 roleName:'',
                 roleDes:''
+            },
+            roleRule:{
+                roleName:[
+                    {required:true, message:'请填写角色名称', trigger:'blur'}
+                ],
+                roleDes:[
+                    {required:true, message:'请填写角色相关描述', trigger:'blur'}
+                ]
             },
             modal:false,
             modal1:false,
@@ -125,7 +136,10 @@ export default {
                         }
                 }
             ],
-            data:[]
+            data:[],
+            total:0,
+            current:1,
+            limit:10,
         }
     },
     mounted(){
@@ -177,8 +191,7 @@ export default {
                 this.roleInfo = role;
             }else{
                 this.roleInfo.roleId = '';
-                this.roleInfo.roleName = '';
-                this.roleInfo.roleDes = '';
+                this.$refs.roleInfo.resetFields();
             }
         },
         ok(){
@@ -223,17 +236,19 @@ export default {
                 }
             ).catch(erro => {this.$Message.error("请求异常")})
         },
-        getAllRolePage(){
+        getAllRolePage(index){
             let param = {
-                start:1,
+                start:index == undefined?this.current:index,
                 limit:10,
             }
             this.$http.post('/getAllRoles',param).then(
                 res =>{
                     if(res.success){
                         this.data = res.data.content;
+                        this.total = res.data.totalElements;
                         this.data.forEach(element => {
-                            element.crtDate = this.$moment(element.crtDate).format("YYYY-MM-DD HH:mm:ss");                        });
+                            element.crtDate = this.$moment(element.crtDate).format("YYYY-MM-DD HH:mm:ss");
+                        });
                     }else{
                         this.$Message.error(res.msg);
                     }
@@ -245,19 +260,8 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-    .grpBtn{
-        height: 10%;
-        margin: 10px;
-        float: left;
-    }
-    .table{
-        height: 80%;
-        margin: 0px 10px 10px;
-    }
-    .page{
-        float: right;
-        height: 10%;
-        margin: 0px 10px 10px;
+    .role{
+        background: #fff;
     }
     .roleInfo{
         margin: 20px;

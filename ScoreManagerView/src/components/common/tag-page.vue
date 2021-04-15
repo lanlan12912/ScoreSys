@@ -56,6 +56,7 @@ export default {
 </script>>
 <style lang="less" scoped>
 .tagStyle{
+    margin-left: 10px;
     padding: 3px;
     font-size: 13px;
     text-align: center;
