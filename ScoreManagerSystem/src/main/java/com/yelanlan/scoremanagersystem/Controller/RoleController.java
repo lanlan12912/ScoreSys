@@ -23,12 +23,17 @@ public class RoleController {
      */
     @RequestMapping("/getAllRoles")
     public IMessage getAllRoles(@RequestBody Map<String, String> map) {
-        if (!ParamUtils.allNotNull(map.get("start"), map.get("limit"))) {
-            return new Message(false, "分页参数异常");
+        try {
+            if (!ParamUtils.allNotNull(map.get("start"), map.get("limit"))) {
+                return new Message(false, "分页参数异常");
+            }
+            int start = Integer.parseInt(map.get("start"));
+            int limit = Integer.parseInt(map.get("limit"));
+            return roleService.quAllRoles(start, limit);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
         }
-        int start = Integer.parseInt(map.get("start"));
-        int limit = Integer.parseInt(map.get("limit"));
-        return roleService.quAllRoles(start, limit);
     }
 
     /**

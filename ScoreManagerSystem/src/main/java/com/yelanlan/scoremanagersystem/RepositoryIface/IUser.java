@@ -25,4 +25,8 @@ public interface IUser {
     public void setUserDesc(String userDesc);
     public String getHeadAvatar();
     public void setHeadAvatar(String headAvatar);
+    public String getCollegeId();
+    public void setCollegeId(String collegeId);
+    public String getDepartmentId();
+    public void setDepartmentId(String departmentId);
 }

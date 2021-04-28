@@ -233,14 +233,59 @@ public class MenuService implements IMenuService {
             if(!ParamUtils.allNotNull(menu)){
                 return new Message(false,"菜单已不存在");
             }
-            if (roleResDAO.findAllByResId(menuId).size()>0){
-                return new Message(false,"改菜单已被授权给用户使用，无法删除");
+            List<Menu> childMenus = menuDAO.findAllByParentId(menuId);//子菜单/子模块
+            List<String> menuIds = childMenus.stream().map(Menu::getMenuId).collect(Collectors.toList());
+            menuIds.add(menuId);
+            if (roleResDAO.findAllByResIds(menuIds).size()>0){
+                return new Message(false,"菜单/子菜单 已被授权给用户使用，无法删除");
             }
-            menuDAO.delete(menu);
-            return new Message(true,"删除成功");
+            //如果菜单为页面则删除页面
+            if(MenuTypeEnum.valueOf(menu.getType()) == MenuTypeEnum.PAGE){
+                menuDAO.delete(menu);
+                return new Message(true,"删除成功");
+            }else {//如果菜单为模块，则删除其下的模块或页面
+                //先删除子菜单
+                if(childMenus.size()>0){
+                    Message message = delChildMenu(childMenus);
+                    if(!message.isSuccess()){
+                        return new Message(false,message.getMsg());
+                    }
+                }
+                //最后删除父菜单
+                menuDAO.delete(menu);
+                return new Message(true,"删除成功");
+            }
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");
         }
+    }
+
+    /**
+     * 删除子菜单
+     * @param  menuList
+     * @return
+     * */
+    public Message delChildMenu(List<Menu> menuList){
+        for(Menu menu : menuList){
+            List<Menu> childMenus = menuDAO.findAllByParentId(menu.getMenuId());//子菜单/子模块
+            List<String> menuIds = childMenus.stream().map(Menu::getMenuId).collect(Collectors.toList());
+            menuIds.add(menu.getMenuId());
+            if (roleResDAO.findAllByResIds(menuIds).size()>0){
+                return new Message(false,"菜单/子菜单 已被授权给用户使用，无法删除");
+            }
+            if(MenuTypeEnum.valueOf(menu.getType()) == MenuTypeEnum.PAGE){
+                menuDAO.delete(menu);
+            }else {
+                if(childMenus.size()>0){
+                    Message message = delChildMenu(childMenus);
+                    if(!message.isSuccess()){//删除子菜单失败时立即返回
+                        return message;
+                    }
+                }
+                menuDAO.delete(menu);
+            }
+        }
+        return new Message(true,"删除成功");
     }
 }

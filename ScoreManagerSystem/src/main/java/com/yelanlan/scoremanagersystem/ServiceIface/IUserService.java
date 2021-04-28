@@ -1,7 +1,10 @@
 package com.yelanlan.scoremanagersystem.ServiceIface;
 
+import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
+
+import java.util.Map;
 
 public interface IUserService {
     /**
@@ -48,4 +51,14 @@ public interface IUserService {
      * @return
      * */
     public User getCurrentUser();
+
+    /**
+     * 分页查询用户列表
+     * @param start
+     * @param limit
+     * @param map
+     * @return
+     * */
+    public IMessage quUserListByPage(Map<String,Object> map,int start,int limit);
+
 }

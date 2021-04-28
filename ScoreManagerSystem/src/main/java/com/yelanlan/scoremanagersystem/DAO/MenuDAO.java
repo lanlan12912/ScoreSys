@@ -2,8 +2,10 @@ package com.yelanlan.scoremanagersystem.DAO;
 
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Menu;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
 public interface MenuDAO extends JpaRepository<Menu,String> {
@@ -21,4 +23,17 @@ public interface MenuDAO extends JpaRepository<Menu,String> {
 
     @Query("select m from Menu m where m.menuId in (?1) order by m.orders")
     List<Menu> findAllByMenuIdIn(List<String> menuIds);
+
+    @Transactional
+    @Modifying
+    @Query("delete from Menu m where  m.parentId = ?1")
+    void deleteAllByParentId(String parentId);
+
+    @Query("select m from Menu m where m.parentId = ?1")
+    List<Menu> findAllByParentId(String parentId);
+
+    @Transactional
+    @Modifying
+    @Query("delete from Menu m where m.menuId in (?1)")
+    void deleteAllByMenuIds(List<String> menuIds);
 }

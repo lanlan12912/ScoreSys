@@ -11,9 +11,6 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name="user")
-//@NamedQueries({
-//        @NamedQuery(name = "UserDAO.findByUserID",query = "from User u where u.userId = ?0")
-//})
 public class User implements IUser,Serializable {
     private static final long serialVersionUID = -7339710774166090561L;
     @Id
@@ -39,6 +36,10 @@ public class User implements IUser,Serializable {
     private String userDesc;//描述
     @Column(name = "head_avatar")
     private String headAvatar;//用户头像
+    @Column(name = "college_id")
+    private String collegeId;//学院id
+    @Column(name = "department_id")
+    private String departmentId;//院系id
 
     public User() {
     }
@@ -55,6 +56,22 @@ public class User implements IUser,Serializable {
         this.failedLoginTime = failedLoginTime;
         this.userDesc = userDesc;
         this.headAvatar = headAvatar;
+    }
+
+    public User(String userNumber, String userName, String userPwd, String userState, String userRole, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc, String headAvatar, String collegeId, String departmentId) {
+        this.userNumber = userNumber;
+        this.userName = userName;
+        this.userPwd = userPwd;
+        this.userState = userState;
+        this.userRole = userRole;
+        this.userTeleno = userTeleno;
+        this.userCrtdate = userCrtdate;
+        this.failedLoginCount = failedLoginCount;
+        this.failedLoginTime = failedLoginTime;
+        this.userDesc = userDesc;
+        this.headAvatar = headAvatar;
+        this.collegeId = collegeId;
+        this.departmentId = departmentId;
     }
 
     @Override
@@ -165,5 +182,25 @@ public class User implements IUser,Serializable {
     @Override
     public void setHeadAvatar(String headAvatar) {
         this.headAvatar = headAvatar;
+    }
+
+    @Override
+    public String getCollegeId() {
+        return collegeId;
+    }
+
+    @Override
+    public void setCollegeId(String collegeId) {
+        this.collegeId = collegeId;
+    }
+
+    @Override
+    public String getDepartmentId() {
+        return departmentId;
+    }
+
+    @Override
+    public void setDepartmentId(String departmentId) {
+        this.departmentId = departmentId;
     }
 }

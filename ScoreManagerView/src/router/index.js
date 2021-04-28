@@ -45,6 +45,14 @@ export const router =  new Router({
             title:'用户管理'
           },
           component:() =>import('@/components/sys/user-mana')
+        },
+        {
+          path:"/sys/departments",
+          name:'departmentlist',
+          meta:{
+            title:'院系管理'
+          },
+          component:() =>import('@/components/sys/departments-mana')
         }
       ]
     },

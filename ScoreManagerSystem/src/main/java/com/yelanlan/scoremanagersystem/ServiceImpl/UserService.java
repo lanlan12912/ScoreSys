@@ -1,28 +1,48 @@
 package com.yelanlan.scoremanagersystem.ServiceImpl;
 
+import com.yelanlan.scoremanagersystem.DAO.DepartmentDAO;
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
+import com.yelanlan.scoremanagersystem.Enum.UserRoleEnum;
 import com.yelanlan.scoremanagersystem.Enum.UserStateEnum;
+import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.UserDTO;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.Department;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import com.yelanlan.scoremanagersystem.Utils.DateUtils;
+import com.yelanlan.scoremanagersystem.Utils.ParamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import sun.misc.BASE64Encoder;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService implements IUserService {
     @Autowired
     UserDAO userDAO ;
     private String initPwd = "q1w2E#R$";
+    @Autowired
+    DepartmentDAO departmentDAO;
     /**
      * 当前账号常量
      */
@@ -161,6 +181,67 @@ public class UserService implements IUserService {
             user.setUserPwd(password);
             userDAO.setFixedUserNumber(user.getUserNumber(),user.getUserPwd());//更新密码
             return new Message(true,"密码修改成功");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 分页查询用户列表
+     * @param start
+     * @param limit
+     * @param map
+     * @return
+     * */
+    @Override
+    public IMessage quUserListByPage(Map<String,Object> map,int start,int limit){
+        try {
+            Specification<User> spec = new Specification<User>() {
+                @Override
+                public Predicate toPredicate(Root<User> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                    List<Predicate> predicateList = new ArrayList<>();
+                    if(ParamUtils.allNotNull(map.get("userNumber"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("userNumber"),String.valueOf(map.get("userNumber"))));
+                    }
+                    if(ParamUtils.allNotNull(map.get("userName"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("userName"),String.valueOf(map.get("userName"))));
+                    }
+                    if(ParamUtils.allNotNull(map.get("userRole"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("userRole"),String.valueOf(map.get("userRole"))));
+                    }
+                    if(ParamUtils.allNotNull(map.get("collegeId"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("collegeId"),String.valueOf(map.get("collegeId"))));
+                    }
+                    if(ParamUtils.allNotNull(map.get("departmentId"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("departmentId"),String.valueOf(map.get("departmentId"))));
+                    }
+                    if(ParamUtils.allNotNull(map.get("userState"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("userState"),String.valueOf(map.get("userState"))));
+                    }
+                    return criteriaQuery.where(predicateList.toArray(new Predicate[predicateList.size()])).getRestriction();
+                }
+            };
+            Page<User> userPage = userDAO.findAll(spec,PageRequest.of(start-1,limit));
+            List<User> users = userPage.getContent();
+            List<UserDTO> userDTOS = new ArrayList<>();
+            if(users.size()>0){
+                List<String> departments = users.stream().map(User::getDepartmentId).collect(Collectors.toList());
+                List<Department> departmentList = departmentDAO.findAllByIds(departments);
+                for (User user : users) {
+                    //根据院id寻找到院信息
+                    Department college  = departmentList.stream().filter(coll -> user.getCollegeId().equals(coll.getId())).findAny().orElse(null);
+                    //根据系id寻找到系信息
+                    Department department = departmentList.stream().filter(depart -> user.getDepartmentId().equals(depart.getId())).findAny().orElse(null);
+                    UserDTO userDTO = new UserDTO(user.getUserNumber(), user.getUserName(),UserStateEnum.valueOf(user.getUserState()).getName(), UserRoleEnum.valueOf(user.getUserRole()).getName() ,
+                            user.getUserTeleno(),college == null ? "": college.getDepartName(), department == null ?"":department.getDepartName());
+                    userDTOS.add(userDTO);
+                }
+            }
+            Page<UserDTO> userDTOPage = new PageImpl(userDTOS,PageRequest.of(start-1,limit),userPage.getTotalElements());
+            Message message = new Message(true,"查询成功");
+            message.setData(userDTOPage);
+            return message;
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");
