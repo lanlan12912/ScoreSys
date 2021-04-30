@@ -27,4 +27,8 @@ public interface UserDAO  extends JpaRepository<User,String> , JpaSpecificationE
     @Query("select u from User u where u.departmentId = ?1")
     List<User> findAllByDepartmentId(String departmentId);
 
+    //查找一个院/系的用户
+    @Query("select u from User u where u.collegeId in (?1) or u.departmentId in (?2)")
+    List<User> findAllByCollegeAndDepart(List<String> cIds, List<String> dIds);
+
 }

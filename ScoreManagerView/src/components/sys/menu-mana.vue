@@ -83,19 +83,8 @@ export default {
     },
     methods:{
         selectNode(node){
-            let param = {
-                menuId:node[0].id
-            }
-            this.$http.post("/quMenuInfo",param).then(
-                res=>{
-                    if(res.success){
-                        this.menuInfo.parentId = res.data.menuId;
-                        this.menuInfo.parentName = res.data.menuName;
-                    }else{
-                        this.$Message.error(res.msg);
-                    }
-                }
-            ).catch(err=>{this.$Message.error(err)});        
+            this.menuInfo.parentId = node[0].id;
+            this.menuInfo.parentName = node[0].title;      
         },
         delMenu(){
             if(this.menuInfo.menuId){

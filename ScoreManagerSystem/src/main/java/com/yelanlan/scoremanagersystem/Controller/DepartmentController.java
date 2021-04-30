@@ -1,5 +1,6 @@
 package com.yelanlan.scoremanagersystem.Controller;
 
+import com.yelanlan.scoremanagersystem.Enum.DepartEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.ServiceIface.IDepartmentService;
@@ -37,6 +38,23 @@ public class DepartmentController {
             return new Message(false,"请选择需要删除的院系");
         }
         return departmentService.delDepartment(map.get("id"));
+    }
+
+    @RequestMapping("/quDepartTree")
+    public IMessage quDepartTree(@RequestBody Map<String,String> map){
+        if(!ParamUtils.allNotNull(map.get("departType"))){
+            return new Message(false,"请指定类型");
+        }
+        DepartEnum type = DepartEnum.valueOf(map.get("departType"));
+        return departmentService.quDepartTree(type);
+    }
+
+    @RequestMapping("/quDepartInfo")
+    public IMessage quDepartInfo(@RequestBody Map<String,String> map){
+        if(!ParamUtils.allNotNull(map.get("id"))){
+            return new Message(false,"请输入院系id");
+        }
+        return departmentService.quDepartById(map.get("id"));
     }
 
 }
