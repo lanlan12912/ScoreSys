@@ -1,8 +1,9 @@
 package com.yelanlan.scoremanagersystem.ServiceImpl;
 
 import com.yelanlan.scoremanagersystem.DAO.DepartmentDAO;
+import com.yelanlan.scoremanagersystem.DAO.RoleResDAO;
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
-import com.yelanlan.scoremanagersystem.Enum.UserRoleEnum;
+import com.yelanlan.scoremanagersystem.Enum.UserRankEnum;
 import com.yelanlan.scoremanagersystem.Enum.UserStateEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
@@ -34,7 +35,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService implements IUserService {
@@ -43,6 +43,9 @@ public class UserService implements IUserService {
     private String initPwd = "q1w2E#R$";
     @Autowired
     DepartmentDAO departmentDAO;
+    @Autowired
+    RoleResDAO roleResDAO;
+
     /**
      * 当前账号常量
      */
@@ -127,24 +130,28 @@ public class UserService implements IUserService {
 
     /**
      * 保存用户信息，即新建用户时用户信息的初始化
-     * @param user
+     * @param map
      * @return
      * */
     @Override
-    public boolean createUser(User user) {
+    public boolean createUser(Map<String,String> map) {
         try {
+            User user = new User();
+            user.setUserName(map.get("userName"));
+            user.setDepartmentId(map.get("departmentId"));
+            user.setUserRank(map.get("userRank"));
+            user.setUserState(map.get("userState"));
+            user.setUserNumber(ParamUtils.allNotNull(map.get("userTeleno"))?map.get("userTeleno"):"");
+            user.setUserDesc(ParamUtils.allNotNull(map.get("userDesc"))?map.get("userDesc"):"");
             String userNumber = DateUtils.transCurrDateToNum();//使用时间作为生成账号
             //将用户的初始密码加密
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             BASE64Encoder baseEncoder = new BASE64Encoder();
             String userPwd = baseEncoder.encode(md5.digest(initPwd.getBytes("utf-8")));
-            //用户状态为启用
-            String userState = UserStateEnum.START.toString();
             //创建时间
             Timestamp userCrtDate = DateUtils.getCurrentTime();
             user.setUserNumber(userNumber);
             user.setUserPwd(userPwd);
-            user.setUserState(userState);
             user.setUserCrtdate(userCrtDate);
             user.setFailedLoginCount(0);
             userDAO.save(user);
@@ -207,12 +214,6 @@ public class UserService implements IUserService {
                     if(ParamUtils.allNotNull(map.get("userName"))){
                         predicateList.add(criteriaBuilder.equal(root.get("userName"),String.valueOf(map.get("userName"))));
                     }
-                    if(ParamUtils.allNotNull(map.get("userRole"))){
-                        predicateList.add(criteriaBuilder.equal(root.get("userRole"),String.valueOf(map.get("userRole"))));
-                    }
-                    if(ParamUtils.allNotNull(map.get("collegeId"))){
-                        predicateList.add(criteriaBuilder.equal(root.get("collegeId"),String.valueOf(map.get("collegeId"))));
-                    }
                     if(ParamUtils.allNotNull(map.get("departmentId"))){
                         predicateList.add(criteriaBuilder.equal(root.get("departmentId"),String.valueOf(map.get("departmentId"))));
                     }
@@ -226,15 +227,11 @@ public class UserService implements IUserService {
             List<User> users = userPage.getContent();
             List<UserDTO> userDTOS = new ArrayList<>();
             if(users.size()>0){
-                List<String> departments = users.stream().map(User::getDepartmentId).collect(Collectors.toList());
-                List<Department> departmentList = departmentDAO.findAllByIds(departments);
                 for (User user : users) {
-                    //根据院id寻找到院信息
-                    Department college  = departmentList.stream().filter(coll -> user.getCollegeId().equals(coll.getId())).findAny().orElse(null);
-                    //根据系id寻找到系信息
-                    Department department = departmentList.stream().filter(depart -> user.getDepartmentId().equals(depart.getId())).findAny().orElse(null);
-                    UserDTO userDTO = new UserDTO(user.getUserNumber(), user.getUserName(),UserStateEnum.valueOf(user.getUserState()).getName(), UserRoleEnum.valueOf(user.getUserRole()).getName() ,
-                            user.getUserTeleno(),college == null ? "": college.getDepartName(), department == null ?"":department.getDepartName());
+                    //根据系id寻找院系信息
+                    Department department = departmentDAO.findDepartById(user.getDepartmentId());
+                    UserDTO userDTO = new UserDTO(user.getUserNumber(), user.getUserName(),UserStateEnum.valueOf(user.getUserState()).getName(), UserRankEnum.valueOf(user.getUserRank()).getName(),
+                            user.getUserTeleno(), department == null ?"":department.getDepartName());
                     userDTOS.add(userDTO);
                 }
             }
@@ -242,6 +239,24 @@ public class UserService implements IUserService {
             Message message = new Message(true,"查询成功");
             message.setData(userDTOPage);
             return message;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 批量删除用户
+     * @param
+     * */
+    @Override
+    public IMessage delUserInfos(List<String> ids){
+        try {
+            if(ids.size()>0){
+                userDAO.deleteAllByUserNumbers(ids);
+                return new Message(true,"删除成功");
+            }
+            return new Message(false,"没有可删除的信息");
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");

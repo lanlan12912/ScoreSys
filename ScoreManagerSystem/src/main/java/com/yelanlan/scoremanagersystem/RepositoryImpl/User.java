@@ -22,8 +22,8 @@ public class User implements IUser,Serializable {
     private String userPwd;//用户密码
     @Column(name = "user_state")
     private String userState;//用户状态（停用，启用）
-    @Column(name = "user_role")
-    private String userRole;//学生；老师；教师；辅导员；系统管理员；
+    @Column(name = "user_rank")
+    private String userRank;//身份：学生/老师/系统管理员；
     @Column(name = "user_teleno")
     private String userTeleno;//固定电话号码
     @Column(name = "user_crtdate")
@@ -36,20 +36,18 @@ public class User implements IUser,Serializable {
     private String userDesc;//描述
     @Column(name = "head_avatar")
     private String headAvatar;//用户头像
-    @Column(name = "college_id")
-    private String collegeId;//学院id
     @Column(name = "department_id")
-    private String departmentId;//院系id
+    private String departmentId;//院系id（院，系，班）
 
     public User() {
     }
 
-    public User(String userNumber, String userName, String userPwd, String userState, String userRole, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc, String headAvatar) {
+    public User(String userNumber, String userName, String userPwd, String userState,String userRank, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc, String headAvatar) {
         this.userNumber = userNumber;
         this.userName = userName;
         this.userPwd = userPwd;
         this.userState = userState;
-        this.userRole = userRole;
+        this.userRank = userRank;
         this.userTeleno = userTeleno;
         this.userCrtdate = userCrtdate;
         this.failedLoginCount = failedLoginCount;
@@ -58,19 +56,18 @@ public class User implements IUser,Serializable {
         this.headAvatar = headAvatar;
     }
 
-    public User(String userNumber, String userName, String userPwd, String userState, String userRole, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc, String headAvatar, String collegeId, String departmentId) {
+    public User(String userNumber, String userName, String userPwd, String userState,String userRank, String userTeleno, Timestamp userCrtdate, Integer failedLoginCount, Timestamp failedLoginTime, String userDesc, String headAvatar, String departmentId) {
         this.userNumber = userNumber;
         this.userName = userName;
         this.userPwd = userPwd;
         this.userState = userState;
-        this.userRole = userRole;
+        this.userRank = userRank;
         this.userTeleno = userTeleno;
         this.userCrtdate = userCrtdate;
         this.failedLoginCount = failedLoginCount;
         this.failedLoginTime = failedLoginTime;
         this.userDesc = userDesc;
         this.headAvatar = headAvatar;
-        this.collegeId = collegeId;
         this.departmentId = departmentId;
     }
 
@@ -115,13 +112,13 @@ public class User implements IUser,Serializable {
     }
 
     @Override
-    public String getUserRole() {
-        return userRole;
+    public String getUserRank() {
+        return userRank;
     }
 
     @Override
-    public void setUserRole(String userRole) {
-        this.userRole = userRole;
+    public void setUserRank(String userRank) {
+        this.userRank = userRank;
     }
 
     @Override
@@ -182,16 +179,6 @@ public class User implements IUser,Serializable {
     @Override
     public void setHeadAvatar(String headAvatar) {
         this.headAvatar = headAvatar;
-    }
-
-    @Override
-    public String getCollegeId() {
-        return collegeId;
-    }
-
-    @Override
-    public void setCollegeId(String collegeId) {
-        this.collegeId = collegeId;
     }
 
     @Override

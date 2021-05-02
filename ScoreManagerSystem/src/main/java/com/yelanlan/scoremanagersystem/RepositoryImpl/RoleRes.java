@@ -7,7 +7,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
-
+/**角色与菜单，角色与用户的绑定关系表*/
 @Entity
 @Table(name = "role_res")
 public class RoleRes implements IRoleRes, Serializable {

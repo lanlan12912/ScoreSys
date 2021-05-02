@@ -3,7 +3,7 @@ package com.yelanlan.scoremanagersystem.ServiceImpl;
 import com.yelanlan.scoremanagersystem.DAO.MenuDAO;
 import com.yelanlan.scoremanagersystem.DAO.RoleResDAO;
 import com.yelanlan.scoremanagersystem.Enum.MenuTypeEnum;
-import com.yelanlan.scoremanagersystem.Enum.UserRoleEnum;
+import com.yelanlan.scoremanagersystem.Enum.UserRankEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.MenuDTO;
@@ -90,13 +90,13 @@ public class MenuService implements IMenuService {
             List<MenuDTO>  menuDTOS = new ArrayList<>();
             List<Menu> menuList = new ArrayList<>();
             //获取菜单列表
-            switch (UserRoleEnum.valueOf(user.getUserRole())){
+            switch (UserRankEnum.valueOf(user.getUserRank())){
                 case ADMIN://系统管理员菜单
                     menuList = menuDAO.findAllOrOrderByOrders();//所有菜单
                     break;
                 default://其他
                     //根据用户角色查询查询角色被授予的资源有哪些
-                    List<RoleRes> roleResList = roleResDAO.findAllByRoleId(user.getUserRole());
+                    List<RoleRes> roleResList = roleResDAO.findAllByRoleId(user.getUserRank());
                     List<String> menuIds = roleResList.stream().map(RoleRes::getResId).collect(Collectors.toList());
                     //根据资源id查询出菜单列表
                     menuList = menuDAO.findAllByMenuIdIn(menuIds);

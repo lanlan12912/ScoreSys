@@ -1,6 +1,6 @@
 package com.yelanlan.scoremanagersystem.Controller;
 
-import com.yelanlan.scoremanagersystem.Enum.UserRoleEnum;
+import com.yelanlan.scoremanagersystem.Enum.UserRankEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,20 +20,17 @@ public class UserInfoController {
     IUserService userService;
 
     @RequestMapping("/saveUser")
-    public IMessage saveUser(@RequestBody User user){
+    public IMessage saveUser(@RequestBody Map<String,String> map){
         try {
-            if(!ParamUtils.allNotNull(user)){
-                return new Message(false,"被保存对象不存在");
+            if(!ParamUtils.allNotNull(map.get("userName"),map.get("userRank"))){
+                return new Message(false,"用户名/身份不明确");
             }
-            if(!ParamUtils.allNotNull(user.getUserName(),user.getUserRole())){
-                return new Message(false,"用户名与身份不明确");
-            }
-            if(UserRoleEnum.STUDENT == UserRoleEnum.valueOf(user.getUserRole()) || UserRoleEnum.PRESIDENT == UserRoleEnum.valueOf(user.getUserRole())){
-                if(!ParamUtils.allNotNull(user.getDepartmentId())){
+            if(UserRankEnum.STUDENT == UserRankEnum.valueOf(map.get("userRank"))){
+                if(!ParamUtils.allNotNull(map.get("departmentId"))){
                     return new Message(false,"学生需要指明院系");
                 }
             }
-            if(userService.createUser(user)){
+            if(userService.createUser(map)){
                 return new Message(true,"保存成功");
             }else {
                 return new Message(false,"保存失败");
@@ -84,5 +82,14 @@ public class UserInfoController {
             e.printStackTrace();
             return new Message(false,"系统异常");
         }
+    }
+
+    @RequestMapping("/delUserInfos")
+    public IMessage delUserInfos(@RequestBody Map<String,Object> map){
+        if(!ParamUtils.allNotNull(map.get("users"))){
+            return new Message(false,"参数异常");
+        }
+        List<String> ids = (List<String>) map.get("users");
+        return userService.delUserInfos(ids);
     }
 }

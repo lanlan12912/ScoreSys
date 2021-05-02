@@ -23,7 +23,7 @@
                     </FormItem>
                     <FormItem label="上级菜单" :label-width="80" prop="parentId">
                         <Dropdown ref="dropdown" trigger="click" placement="bottom-start" style="width:100%" >
-                            <Input v-model="menuInfo.parentName"  :disabled="!modifyFlag" />
+                            <Input v-model="menuInfo.parentName" readonly  :disabled="!modifyFlag" />
                             <DropdownMenu slot="list">
                                 <Tree :data="menuModules" style="line-height: 1.5;  float: left; padding:4px" @on-select-change="selectNode"></Tree>
                             </DropdownMenu>
@@ -70,7 +70,7 @@ export default {
                     {required:true, message:'请填写菜单路径', trigger:'blur'}
                 ],
                 parentId:[
-                    {required:false, message:'请填写菜单名称', trigger:'blur'}
+                    {required:false, message:'请填写选择上级菜单', trigger:'blur'}
                 ],
             },
             menuModules:[],

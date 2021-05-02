@@ -96,7 +96,7 @@ public class DepartmentService implements IDepartmentService {
             List<Department> childDepart = departmentDAO.findAllByParentId(id);
             List<String> departIds = childDepart.stream().map(Department::getId).collect(Collectors.toList());
             departIds.add(id);
-            if(userDAO.findAllByCollegeAndDepart(departIds,departIds).size()>0){
+            if(userDAO.findAllByCollegeAndDepart(departIds).size()>0){//该院系或子院系的id被使用时无法删除
                 return new Message(false,"该院/系已有用户存在，无法删除");
             }
             if(DepartEnum.valueOf(department.getDepartType()) == DepartEnum.CLASS){//如果是班信息，直接删除
@@ -129,7 +129,7 @@ public class DepartmentService implements IDepartmentService {
                 List<Department> childDepart = departmentDAO.findAllByParentId(department.getId());//子菜单/子模块
                 List<String> departIds = childDepart.stream().map(Department::getId).collect(Collectors.toList());
                 departIds.add(department.getId());
-                if (userDAO.findAllByCollegeAndDepart(departIds,departIds).size()>0){
+                if (userDAO.findAllByCollegeAndDepart(departIds).size()>0){//该院系或子院系的id被使用时无法删除
                     return new Message(false,"该院/系已有用户存在，无法删除");
                 }
                 if(DepartEnum.valueOf(department.getDepartType()) == DepartEnum.CLASS){

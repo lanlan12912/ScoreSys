@@ -4,6 +4,7 @@ import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IUserService {
@@ -25,10 +26,10 @@ public interface IUserService {
 
     /**
      * 保存用户信息，即新建用户时用户信息的初始化
-     * @param user
+     * @param map
      * @return
      * */
-    public boolean createUser(User user);
+    public boolean createUser(Map<String,String> map);
 
     /**
      *修改密码
@@ -61,4 +62,9 @@ public interface IUserService {
      * */
     public IMessage quUserListByPage(Map<String,Object> map,int start,int limit);
 
+    /**
+     * 批量删除用户
+     * @param
+     * */
+    public IMessage delUserInfos(List<String> ids);
 }

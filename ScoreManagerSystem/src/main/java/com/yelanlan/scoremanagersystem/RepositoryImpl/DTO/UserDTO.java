@@ -7,22 +7,21 @@ public class UserDTO implements Serializable {
     private String userNumber;
     private String userName;
     private String userState;
+    private String userRank;
     private String userRole;
     private String userTeleno;
-    private String collegeName;
-    private String departName;
+    private String departmentName;
 
     public UserDTO() {
     }
 
-    public UserDTO(String userNumber, String userName, String userState, String userRole, String userTeleno, String collegeName, String departName) {
+    public UserDTO(String userNumber, String userName, String userState,String userRank, String userTeleno, String departmentName) {
         this.userNumber = userNumber;
         this.userName = userName;
         this.userState = userState;
-        this.userRole = userRole;
+        this.userRank = userRank;
         this.userTeleno = userTeleno;
-        this.collegeName = collegeName;
-        this.departName = departName;
+        this.departmentName = departmentName;
     }
 
     public String getUserNumber() {
@@ -49,6 +48,14 @@ public class UserDTO implements Serializable {
         this.userState = userState;
     }
 
+    public String getUserRank() {
+        return userRank;
+    }
+
+    public void setUserRank(String userRank) {
+        this.userRank = userRank;
+    }
+
     public String getUserRole() {
         return userRole;
     }
@@ -65,19 +72,11 @@ public class UserDTO implements Serializable {
         this.userTeleno = userTeleno;
     }
 
-    public String getCollegeName() {
-        return collegeName;
+    public String getDepartmentName() {
+        return departmentName;
     }
 
-    public void setCollegeName(String collegeName) {
-        this.collegeName = collegeName;
-    }
-
-    public String getDepartName() {
-        return departName;
-    }
-
-    public void setDepartName(String departName) {
-        this.departName = departName;
+    public void setDepartmentName(String departmentName) {
+        this.departmentName = departmentName;
     }
 }
