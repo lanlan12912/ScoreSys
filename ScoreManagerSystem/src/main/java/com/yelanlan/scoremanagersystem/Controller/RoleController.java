@@ -90,4 +90,35 @@ public class RoleController {
         List<String> resIds = (List<String>) map.get("resIds");
         return  roleService.authorization(roleId,resIds);
     }
+
+    @RequestMapping("/getRolesNoPage")
+    public IMessage getRolesNoPage(){
+        return roleService.getRoleListNoPage();
+    }
+
+    /**
+     * 获取用户已分配的角色
+     * */
+    @RequestMapping("/getAuthResRoles")
+    public IMessage getAuthRes(@RequestBody Map<String,String> map){
+        if(!ParamUtils.allNotNull(map.get("userNumber"))){
+            return new Message(false,"请指定角色");
+        }
+        String userNumber = map.get("userNumber");
+        return roleService.getAuthRes(userNumber);
+    }
+
+    /**
+     * 给用户分配角色
+     * */
+    @RequestMapping("/distrUserRoles")
+    public IMessage distrUserRoles(@RequestBody Map<String,Object> map){
+        if(!ParamUtils.allNotNull(map.get("userNumber"))){
+            return new Message(false,"请指定用户分配角色");
+        }
+        if(!ParamUtils.allNotNull(map.get("targetRoles"))){
+            return new Message(false,"角色参数为空");
+        }
+        return roleService.distrUserRoles(map);
+    }
 }

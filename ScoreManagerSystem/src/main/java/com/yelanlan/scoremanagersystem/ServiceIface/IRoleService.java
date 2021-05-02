@@ -4,6 +4,7 @@ import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Role;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IRoleService {
     /**
@@ -42,4 +43,25 @@ public interface IRoleService {
      * @return
      * */
     public IMessage authorization(String roleId,List<String> resIds);
+
+    /**
+     * 不分页查询角色列表
+     * @param
+     * @return
+     * */
+    public IMessage getRoleListNoPage();
+
+    /**
+     *获取角色绑定的资源，不止菜单，还有可能是其他的
+     * @param userNumber
+     * @return
+     * */
+    public IMessage getAuthRes(String userNumber);
+
+    /**
+     * 给用户分配角色
+     * @param map
+     * @return
+     * */
+    public IMessage distrUserRoles(Map<String,Object> map);
 }

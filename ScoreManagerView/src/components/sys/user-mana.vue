@@ -1,25 +1,32 @@
 <template>
     <div>
         <Row span ='2'>
-            <Form  ref="filterItem" :model="filterItem" :label-width="70" class="filter">
-                <div class="autoStyle">
-                    <FormItem label='用户账号' prop="userNumber">
-                        <Input type="text" v-model ="filterItem.userNumber"></Input>
-                    </FormItem>
-                    <FormItem label='用户名' prop="userName" >
-                        <Input type="text" v-model ="filterItem.userName"></Input>
-                    </FormItem>
-                    <FormItem label="院/系名称" prop="departmentId">
-                        <Input type="text" v-model ="filterItem.departmentId"></Input>
-                    </FormItem>
-                    <FormItem label="用户状态" prop="userState" >
-                        <Input type="text" v-model ="filterItem.userState"></Input>
-                    </FormItem>
-                    <FormItem :label-width='30'>
-                        <Button type="primary" size="small" icon="ios-search-outline" @click="quUserList(1)">查询</Button>
-                        <Button type="primary" size="small" icon="ios-refresh" @click="resetFilter">重置</Button>
-                    </FormItem>
-                </div>
+            <Form  ref="filterItem" :model="filterItem" :label-width="60" class="filter">
+                <FormItem label='用户账号' prop="userNumber">
+                    <Input type="text" v-model ="filterItem.userNumber"></Input>
+                </FormItem>
+                <FormItem label='用户名' prop="userName" >
+                    <Input type="text" v-model ="filterItem.userName"></Input>
+                </FormItem>
+                <FormItem label="院/系" prop="departmentIds">
+                    <Dropdown ref="depart" trigger="click" placement="bottom-start" style="width:100%" >
+                    <Input v-model="filterItem.departmentNames" readonly />
+                    <DropdownMenu slot="list">
+                        <Tree style="line-height: 1.5;float: left; width:100%;height:50%; padding:2px;overflow:auto" 
+                        :data="departList" show-checkbox @on-check-change="selectCollege"></Tree>
+                    </DropdownMenu>
+                </Dropdown>
+                </FormItem>
+                <FormItem label="用户状态" prop="userState" >
+                    <Select  v-model="filterItem.userState" readonly style="text-align:left">
+                        <Option value="START" key="START">启用</Option>
+                        <Option value="STOP" key="STOP">停用</Option>
+                    </Select>
+                </FormItem>
+                <FormItem :label-width='30'>
+                    <Button type="primary" size="small" icon="ios-search-outline" @click="quUserList(1)">查询</Button>
+                    <Button type="primary" size="small" icon="ios-refresh" @click="resetFilter">重置</Button>
+                </FormItem>
             </Form>
         </Row>
         <Row span='16' class="userList">
@@ -89,6 +96,21 @@
                 </Row>
             </Form>
         </Modal>
+        <Modal
+            v-model="modal1"
+            title="分配角色"
+            width="500"
+            @on-ok="distributeRole"
+            @on-cancle="back"
+            >
+            <template>
+            <Transfer
+                :data="roleList"
+                :titles="titles"
+                :target-keys="targetRoles"
+                @on-change="handleChange"></Transfer>
+            </template>
+        </Modal>
     </div>
 </template>
 <script>
@@ -97,12 +119,14 @@ export default {
     name:"userlist",
     data(){
         return{
+            modal1:false,
             modifyFlag:true,
             modal:false,
             filterItem:{
                 userNumber:'',
                 userName:'',
-                departmentName:'',
+                departmentIds:'',
+                departmentNames:'',
                 userState:"",
             },
             columns:[
@@ -128,7 +152,7 @@ export default {
                 },
                 {
                     title:'用户身份',
-                    key:'userRank',
+                    key:'rankName',
                     width:'100'
                 },
                 {
@@ -143,7 +167,7 @@ export default {
                 },
                 {
                     title:'用户状态',
-                    key:'userState',
+                    key:'stateName',
                     width:'90'
                 },
                 {
@@ -169,7 +193,7 @@ export default {
                                         },
                                         on: {
                                             click: () => {
-                                                this.showRes(params.row)
+                                                this.openRoleList(params.row.userNumber)
                                             }
                                         }
                                     }
@@ -228,6 +252,7 @@ export default {
                 }
             ],
             userInfo:{
+                userNumber:'',
                 userName:'',
                 userRank:'',
                 userState:'START',
@@ -252,7 +277,11 @@ export default {
             data:[],
             total:0,
             current:1,
-            limit:10
+            limit:10,
+            roleList:[],
+            targetRoles:[],
+            titles:["剩余角色","已分配角色"],
+            userNumber:'',
         }
     },
     mounted(){
@@ -260,16 +289,58 @@ export default {
         this.quDepartTree();
     },
     methods:{
+        selectCollege(nodes){
+            this.filterItem.departmentIds = '';
+            this.filterItem.departmentNames = '';
+            nodes.forEach(element =>{
+                this.filterItem.departmentIds = this.filterItem.departmentIds == ''?element.id:this.filterItem.departmentIds +","+element.id;
+                this.filterItem.departmentNames = this.filterItem.departmentNames == ''?element.title:this.filterItem.departmentNames+","+element.title;
+            });
+        },
+        distributeRole(){
+            let param = {
+                userNumber:this.userNumber,
+                targetRoles:Array.from(new Set(this.targetRoles))
+            };
+            this.$http.post("/distrUserRoles",param).then(
+                res => {
+                    if(res.success){
+                        this.$Message.success(res.msg);
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err =>{this.$Message.error(err)});
+        },
+        handleChange(newtargetKeys){
+           this.targetRoles = newtargetKeys;
+        },
+        back(){
+            this.modal1 = false;
+            this.userNUmber ='';
+        },
+        openRoleList(userNumber){
+            this.roleList = [];
+            this.targetRoles = [];
+            this.modal1 = true;
+            this.userNumber = userNumber;
+            this.getRoleList();
+        },
+        render(item){
+            return item.label;
+        },
         selectNode(node){
             this.userInfo.departmentId = node[0].id;
             this.userInfo.departmentName = node[0].title;
         },
         resetFilter(){
             this.$refs.filterItem.resetFields();
+            this.quUserList();
         },
         resetUserInfo(){
             this.$refs.userInfo.resetFields();
             this.userInfo.departmentName = '';
+            this.userInfo.departmentId='';
             this.userInfo.userNumber ='';
         },
         ok(){
@@ -278,7 +349,13 @@ export default {
                     let param = this.userInfo;
                     this.$http.post("/saveUser",param).then(
                         res =>{
-                            this.$Message.success(res.msg)
+                            if(res.success){
+                                this.$Message.success(res.msg)
+                                this.quUserList();
+                            }else{
+                                this.$Message.error(res.msg)
+                            }
+                            
                         }
                     ).catch(err => {this.$Message.error(err)});
                 }else{
@@ -289,7 +366,7 @@ export default {
         },
         cancel(){
             this.modal = false;
-            this.getAllRolePage();
+            this.quUserList();
         },
         delUsers(flag,user){
             let users = [];
@@ -331,13 +408,14 @@ export default {
                 userName:this.filterItem.userName,
                 userRole:this.filterItem.userRole,
                 collegeId:this.filterItem.collegeId,
-                departmentId:this.filterItem.departmentId,
+                departmentIds:this.filterItem.departmentIds,
                 userState:this.filterItem.userState
             };
             this.$http.post("/quUserListByPage",param).then(
                 res => {
                     if(res.success){
                         this.data = res.data.content;
+                        this.total = res.data.totalElements;
                     }else{
                         this.$Message.error(res.msg)
                     }
@@ -357,8 +435,43 @@ export default {
                     }
                 }
             ).catch(err => {this.$$Message.error("请求异常")});
+        },
+        getRoleList(){
+            this.$http.post("/getRolesNoPage").then(
+                res => {
+                    if(res.success){
+                        res.data.forEach(element => {
+                            let obj = {
+                                key:element.roleId,
+                                label:element.roleName,
+                                description:element.roleDes,
+                                disabled:false
+                            };
+                            this.roleList.push(obj);
+                            this.getUDistriRoles();
+                        });
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err =>{this.$Message.error("请求异常")});
+        },
+        getUDistriRoles(){
+            let param = {
+                userNumber:this.userNumber
+            };
+            this.$http.post("/getAuthResRoles",param).then(
+                res =>{
+                    if(res.success){
+                        res.data.forEach(element => {
+                             this.targetRoles.push(element.roleId);
+                        });
+                    }else{
+                        this.$Message.success(res.msg);
+                    }
+                }
+            ).catch(err =>{this.$Message.error("请求异常")});
         }
-        
     }
 }
 </script>

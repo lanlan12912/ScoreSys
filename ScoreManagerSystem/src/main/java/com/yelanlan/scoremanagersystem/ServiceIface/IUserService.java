@@ -67,4 +67,11 @@ public interface IUserService {
      * @param
      * */
     public IMessage delUserInfos(List<String> ids);
+
+    /**
+     * 修改用户信息
+     * @param map
+     * @return
+     * */
+    public IMessage updateUser(Map<String,String> map);
 }

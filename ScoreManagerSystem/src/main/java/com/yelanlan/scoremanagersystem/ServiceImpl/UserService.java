@@ -31,10 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserService implements IUserService {
@@ -141,7 +138,7 @@ public class UserService implements IUserService {
             user.setDepartmentId(map.get("departmentId"));
             user.setUserRank(map.get("userRank"));
             user.setUserState(map.get("userState"));
-            user.setUserNumber(ParamUtils.allNotNull(map.get("userTeleno"))?map.get("userTeleno"):"");
+            user.setUserTeleno(ParamUtils.allNotNull(map.get("userTeleno"))?map.get("userTeleno"):"");
             user.setUserDesc(ParamUtils.allNotNull(map.get("userDesc"))?map.get("userDesc"):"");
             String userNumber = DateUtils.transCurrDateToNum();//使用时间作为生成账号
             //将用户的初始密码加密
@@ -214,8 +211,15 @@ public class UserService implements IUserService {
                     if(ParamUtils.allNotNull(map.get("userName"))){
                         predicateList.add(criteriaBuilder.equal(root.get("userName"),String.valueOf(map.get("userName"))));
                     }
-                    if(ParamUtils.allNotNull(map.get("departmentId"))){
-                        predicateList.add(criteriaBuilder.equal(root.get("departmentId"),String.valueOf(map.get("departmentId"))));
+                    if(ParamUtils.allNotNull(map.get("departmentIds"))){
+                        CriteriaBuilder.In<String> in = criteriaBuilder.in(root.get("departmentId"));
+                        List<String> departmentIds = Arrays.asList(String.valueOf(map.get("departmentIds")).split(","));
+                        if(departmentIds.size()>0) {
+                            for(String s : departmentIds){
+                                in.value(s);
+                            }
+                            predicateList.add(in);
+                        }
                     }
                     if(ParamUtils.allNotNull(map.get("userState"))){
                         predicateList.add(criteriaBuilder.equal(root.get("userState"),String.valueOf(map.get("userState"))));
@@ -230,8 +234,8 @@ public class UserService implements IUserService {
                 for (User user : users) {
                     //根据系id寻找院系信息
                     Department department = departmentDAO.findDepartById(user.getDepartmentId());
-                    UserDTO userDTO = new UserDTO(user.getUserNumber(), user.getUserName(),UserStateEnum.valueOf(user.getUserState()).getName(), UserRankEnum.valueOf(user.getUserRank()).getName(),
-                            user.getUserTeleno(), department == null ?"":department.getDepartName());
+                    UserDTO userDTO = new UserDTO(user.getUserNumber(), user.getUserName(),user.getUserState(),UserStateEnum.valueOf(user.getUserState()).getName(), user.getUserRank(),UserRankEnum.valueOf(user.getUserRank()).getName(),
+                            user.getUserTeleno(),user.getDepartmentId(), department == null ?"":department.getDepartName(),user.getUserDesc());
                     userDTOS.add(userDTO);
                 }
             }
@@ -257,6 +261,36 @@ public class UserService implements IUserService {
                 return new Message(true,"删除成功");
             }
             return new Message(false,"没有可删除的信息");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 修改用户信息
+     * @param map
+     * @return
+     * */
+    @Override
+    public IMessage updateUser(Map<String,String> map){
+        try {
+            String userNumber = map.get("userNumber");
+            User user = userDAO.findUserByUserNumber(userNumber);
+            if(null == user){
+                return new Message(false,"该用户已不存在，无法修改");
+            }
+            //先将用户删除
+            userDAO.delete(user);
+            user.setUserName(map.get("userName"));
+            user.setUserState(map.get("userState"));
+            user.setDepartmentId(map.get("departmentId"));
+            user.setUserRank(map.get("userRank"));
+            user.setUserTeleno(map.get("userTeleno"));
+            user.setUserDesc(map.get("userDesc"));
+            //插入新的数据
+            userDAO.save(user);
+            return new Message(true,"修改成功");
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");

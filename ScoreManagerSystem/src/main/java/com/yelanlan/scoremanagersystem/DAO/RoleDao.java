@@ -24,4 +24,7 @@ public interface RoleDao extends JpaRepository<Role,String> {
     @Query("update Role r set r.roleName = ?1,r.roleDes = ?2 where r.roleId = ?3")
     int updateRole(String roleName,String roleDes,String roleId);
 
+    @Query("select r from Role r where r.roleId in (?1)")
+    List<Role> findAllByRoleIds(List<String> ids);
+
 }

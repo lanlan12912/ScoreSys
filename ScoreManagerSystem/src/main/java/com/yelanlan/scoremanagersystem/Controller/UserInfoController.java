@@ -30,10 +30,14 @@ public class UserInfoController {
                     return new Message(false,"学生需要指明院系");
                 }
             }
-            if(userService.createUser(map)){
-                return new Message(true,"保存成功");
-            }else {
-                return new Message(false,"保存失败");
+            if(!ParamUtils.allNotNull(map.get("userNumber"))){
+                if(userService.createUser(map)){
+                    return new Message(true,"保存成功");
+                }else {
+                    return new Message(false,"保存失败");
+                }
+            }else{
+                return userService.updateUser(map);
             }
         }catch (Exception e){
             e.printStackTrace();

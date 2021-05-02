@@ -18,7 +18,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -174,5 +176,76 @@ public class RoleService implements IRoleService {
             e.printStackTrace();
             return new Message(false,"系统异常");
         }
+    }
+
+    /**
+     * 不分页查询角色列表
+     * @param
+     * @return
+     * */
+    @Override
+    public IMessage getRoleListNoPage(){
+        try {
+            Message message = new Message(true,"查询成功");
+            List<Role> roles = new ArrayList<>();
+            roles = roleDao.findAll();
+            message.setData(roles);
+            return message;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     *获取角色绑定的资源，不止菜单，还有可能是其他的
+     * @param userNumber
+     * @return
+     * */
+    @Override
+    public IMessage getAuthRes(String userNumber){
+        try{
+            //用户与角色的关系存在角色关系表中，与角色和菜单之间的关系数据共存
+            //userNumber作为角色id
+            List<RoleRes> roleResList = roleResDAO.findAllByRoleId(userNumber);
+            List<String> roleIds = roleResList.stream().map(RoleRes::getResId).collect(Collectors.toList());
+            List<Role> roles = new ArrayList<>();
+            if(roleIds.size()>0){
+                roles = roleDao.findAllByRoleIds(roleIds);
+            }
+            Message message = new Message(true,"查询成功");
+            message.setData(roles);
+            return message;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+
+    /**
+     * 给用户分配角色
+     * @param map
+     * @return
+     * */
+    @Override
+    public IMessage distrUserRoles(Map<String,Object> map){
+        try{
+            String userNumber = String.valueOf(map.get("userNumber"));
+            List<String> roleIds = (List<String>) map.get("targetRoles");
+            //先将原有的记录删除
+            roleResDAO.deleteAllByRoleId(userNumber);
+            for(String id : roleIds ){
+                String ralId = UUID.randomUUID().toString().replaceAll("-", "");
+                //用户id为角色id，角色id为资源id；
+                RoleRes ral = new RoleRes(ralId,userNumber,id);
+                roleResDAO.save(ral);
+            }
+            return new Message(true,"成功分配角色");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+
     }
 }
