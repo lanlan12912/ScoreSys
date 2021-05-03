@@ -127,7 +127,7 @@ export default {
                         this.$Message.error(res.msg)
                     }
                 }
-            ).catch(err => {this.$Message.error(err)});
+            ).catch(err => {this.$Message.error("请求异常")});
         },
         getMenuModule(){
             let param = {
@@ -142,7 +142,7 @@ export default {
                         this.$Message.error(res.msg)
                     }
                 }
-            ).catch(err => {this.$Message.error(err)});
+            ).catch(err => {this.$Message.error("请求异常")});
             param = {
                 type:"PAGE"
             }
@@ -155,7 +155,7 @@ export default {
                         this.$Message.error(res.msg)
                     }
                 }
-            ).catch(err => {this.$Message.error(err)});
+            ).catch(err => {this.$Message.error("请求异常")});
             
         },
         saveMenu(){

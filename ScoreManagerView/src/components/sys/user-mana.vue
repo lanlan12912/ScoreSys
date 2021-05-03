@@ -310,7 +310,7 @@ export default {
                         this.$Message.error(res.msg);
                     }
                 }
-            ).catch(err =>{this.$Message.error(err)});
+            ).catch(err =>{this.$Message.error("请求异常")});
         },
         handleChange(newtargetKeys){
            this.targetRoles = newtargetKeys;
@@ -357,7 +357,7 @@ export default {
                             }
                             
                         }
-                    ).catch(err => {this.$Message.error(err)});
+                    ).catch(err => {this.$Message.error("请求异常")});
                 }else{
                     this.$Message.error("信息填写不规范")
                 }
@@ -389,7 +389,7 @@ export default {
                         this.$Message.error(res.msg);
                     }
                 }
-            ).catch(err => {this.$Message.error(err)});
+            ).catch(err => {this.$Message.error("请求异常")});
         },
         open(flag,user){
             this.modal = true;
@@ -481,23 +481,4 @@ export default {
     margin: 5px 10px 10px;
     background: #fff;
 }
-.filter{
-    padding: 5px 5px 5px 0px;
-    margin: 5px 10px 10px;
-    background: rgb(255, 255, 255);
-    display: block;
-    position: relative;
-    zoom: 1;
-    text-align: left;
-    .ivu-form-item {
-        display: inline-block;
-        position: relative;
-        width: 200px;
-        margin-left:15px;
-        margin-top: 15px;
-        zoom: 1;
-        vertical-align: middle;
-    }
-}
-
 </style>

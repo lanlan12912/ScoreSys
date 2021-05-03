@@ -91,6 +91,11 @@ public class RoleService implements IRoleService {
     public IMessage delRoles(List<String> roles){
         try{
             if(roles.size()>0){
+                //删除角色绑定的菜单
+                roleResDAO.deleteAllByRoleIds(roles);
+                //删除用户分配了的角色关系信息
+                roleResDAO.deleteAllByRoesIds(roles);
+                //删除角色信息
                 roleDao.deleteAllByRoleId(roles);
             }
             return new Message(true,"删除成功");

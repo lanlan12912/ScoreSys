@@ -53,7 +53,23 @@ export const router =  new Router({
             title:'院系管理'
           },
           component:() =>import('@/components/sys/departments-mana')
-        }
+        },
+        {
+          path:"/act/actlist",
+          name:'actlist',
+          meta:{
+            title:'综合活动'
+          },
+          component:() =>import('@/components/act/activity')
+        },
+        {
+          path:"/act/myact",
+          name:'myact',
+          meta:{
+            title:'我的活动'
+          },
+          component:() =>import('@/components/act/my-activity')
+        },
       ]
     },
     {

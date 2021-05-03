@@ -253,7 +253,7 @@ export default {
                         this.$Message.error(res.msg);
                     }
                 }
-            ).catch(err => {this.$Message.error(err)});
+            ).catch(err => {this.$Message.error("请求异常")});
         }
 
     },

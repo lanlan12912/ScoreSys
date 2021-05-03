@@ -83,7 +83,7 @@
                 this.$Message.error(res.msg);
                }
               }).catch(err => {
-                this.$Message.error(err);
+                this.$Message.error("请求异常");
               });
             } else {
               this.$Message.error('登录失败');
