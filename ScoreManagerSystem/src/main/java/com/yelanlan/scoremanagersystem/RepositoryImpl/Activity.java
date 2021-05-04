@@ -7,8 +7,8 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Date;
 
 @Entity
 @Table(name = "activity")
@@ -29,6 +29,8 @@ public class Activity implements IActivity, Serializable {
     private String actImgs;//活动图片
     @Column(name = "act_state")
     private String actState;//活动状态(未开始/进行中/已结束)
+    @Column(name = "act_judge")
+    private String actJudge;//审核状态（申报中，审核中，申报成功，申报失败）
     @Column(name = "act_rank")
     private String actRank;//活动等级
     @Column(name = "start_date")
@@ -47,7 +49,22 @@ public class Activity implements IActivity, Serializable {
     public Activity() {
     }
 
-    public Activity(String id, String actName, String actDesc, String actSite, String actHost, String actImgs, String actState, String actRank, Date startDate, Date endDate, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
+    public Activity(String id, String actName, String actDesc, String actSite, String actHost, String actRank, Date startDate, Date endDate, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
+        this.id = id;
+        this.actName = actName;
+        this.actDesc = actDesc;
+        this.actSite = actSite;
+        this.actHost = actHost;
+        this.actRank = actRank;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.crtUser = crtUser;
+        this.crtDate = crtDate;
+        this.modifyUser = modifyUser;
+        this.modifyDate = modifyDate;
+    }
+
+    public Activity(String id, String actName, String actDesc, String actSite, String actHost, String actImgs, String actState, String actJudge, String actRank, Date startDate, Date endDate, String crtUser, Timestamp crtDate, String modifyUser, Timestamp modifyDate) {
         this.id = id;
         this.actName = actName;
         this.actDesc = actDesc;
@@ -55,6 +72,7 @@ public class Activity implements IActivity, Serializable {
         this.actHost = actHost;
         this.actImgs = actImgs;
         this.actState = actState;
+        this.actJudge = actJudge;
         this.actRank = actRank;
         this.startDate = startDate;
         this.endDate = endDate;
@@ -132,6 +150,16 @@ public class Activity implements IActivity, Serializable {
     @Override
     public void setActState(String actState) {
         this.actState = actState;
+    }
+
+    @Override
+    public String getActJudge() {
+        return actJudge;
+    }
+
+    @Override
+    public void setActJudge(String actJudge) {
+        this.actJudge = actJudge;
     }
 
     @Override

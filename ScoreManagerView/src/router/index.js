@@ -58,7 +58,7 @@ export const router =  new Router({
           path:"/act/actlist",
           name:'actlist',
           meta:{
-            title:'综合活动'
+            title:'全部活动'
           },
           component:() =>import('@/components/act/activity')
         },
@@ -69,6 +69,22 @@ export const router =  new Router({
             title:'我的活动'
           },
           component:() =>import('@/components/act/my-activity')
+        },
+        {
+          path:"/act/actDetail",
+          name:'actDetail',
+          meta:{
+            title:'活动详情'
+          },
+          component:() =>import('@/components/act/activity-detail')
+        },
+        {
+          path:"/act/judgeAct",
+          name:'actJudge',
+          meta:{
+            title:'活动审核'
+          },
+          component:() =>import('@/components/act/activity-judge')
         },
       ]
     },

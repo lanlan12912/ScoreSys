@@ -1,7 +1,7 @@
 package com.yelanlan.scoremanagersystem.RepositoryIface;
 
-import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.Date;
 
 public interface IActivity {
     public String getId();
@@ -18,6 +18,8 @@ public interface IActivity {
     public void setActImgs(String actImgs);
     public String getActState();
     public void setActState(String actState);
+    public String getActJudge();
+    public void setActJudge(String actJudge);
     public String getActRank();
     public void setActRank(String actRank);
     public Date getStartDate();

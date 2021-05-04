@@ -30,12 +30,12 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     @Column(name = "certificate_img")
     private String certificateImg;//证书图片（获奖证明）
     @Column(name = "measure_score")
-    private String measureScore;//测评分数
+    private double measureScore;//测评分数
 
     public ParticipateInfo() {
     }
 
-    public ParticipateInfo(String id, String actId, String userNumber, String artInState, String partInImg, String awardName, String awardRank, String certificateImg, String measureScore) {
+    public ParticipateInfo(String id, String actId, String userNumber, String artInState, String partInImg, String awardName, String awardRank, String certificateImg, double measureScore) {
         this.id = id;
         this.actId = actId;
         this.userNumber = userNumber;
@@ -128,12 +128,12 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     }
 
     @Override
-    public String getMeasureScore() {
+    public double getMeasureScore() {
         return measureScore;
     }
 
     @Override
-    public void setMeasureScore(String measureScore) {
+    public void setMeasureScore(double measureScore) {
         this.measureScore = measureScore;
     }
 }

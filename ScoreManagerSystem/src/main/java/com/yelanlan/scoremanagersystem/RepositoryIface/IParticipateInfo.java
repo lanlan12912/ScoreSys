@@ -17,6 +17,6 @@ public interface IParticipateInfo {
     public void setAwardRank(String awardRank);
     public String getCertificateImg();
     public void setCertificateImg(String certificateImg);
-    public String getMeasureScore();
-    public void setMeasureScore(String measureScore);
+    public double getMeasureScore();
+    public void setMeasureScore(double measureScore);
 }
