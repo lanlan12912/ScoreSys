@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+//@RequestMapping("/")
 public class ActivityController {
     @Autowired
     private IActivityService activityService;
@@ -62,6 +63,48 @@ public class ActivityController {
         }
         int start = Integer.parseInt(String.valueOf(map.get("start")));
         int limit = Integer.parseInt(String.valueOf(map.get("limit")));
-        return activityService.getAllActs(map,start,limit);
+        if(!ParamUtils.allNotNull(map.get("myAct"))){
+            return new Message(false,"参数异常");
+        }
+        int actFlag = Integer.parseInt(String.valueOf(map.get("myAct")));
+        return activityService.getAllActs(map,start,limit,actFlag);
     }
+
+    @RequestMapping("/delActInfo")
+    public IMessage delActInfo(@RequestBody Map<String,String> map){
+        if(!ParamUtils.allNotNull(map.get("id"))){
+            return new Message(false,"请指定活动方可删除");
+        }
+        return activityService.delActInfo(map.get("id"));
+    }
+
+    @RequestMapping("/getJudgeAct")
+    public IMessage getJudgeAct(@RequestBody Map<String,String> map){
+        if(!ParamUtils.allNotNull(map.get("start"),map.get("limit"))){
+            return new Message(false,"分页参数异常");
+        }
+        int start = Integer.parseInt(String.valueOf(map.get("start")));
+        int limit = Integer.parseInt(String.valueOf(map.get("limit")));
+        return activityService.getJudgeAct(map,start,limit);
+    }
+
+    @RequestMapping("/uploadImgs")
+    public IMessage uploadImgs(@RequestBody Map<String,Object> map){
+        if(!ParamUtils.allNotNull(map.get("id"))) {
+            return new Message(false, "参数异常");
+        }
+        if(!ParamUtils.allNotNull(map.get("imgFile"))){
+            return new Message(false,"图片参数为空");
+        }
+        String imgFile = (String)map.get("imgFile");
+        String imgType = ".jpg";
+        if(imgFile.substring(5,14).equals("image/png")){
+            imgType = ".png";
+        }
+        if(imgFile.substring(5,15).equals("image/jpeg") || imgFile.substring(5,14).equals("image/jpg")){
+            imgType = ".jpg";
+        }
+        return activityService.uploadImgs();
+    }
+
 }

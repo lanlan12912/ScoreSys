@@ -23,6 +23,8 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     private String artInState;//参与（已报名/已参与/已获奖）
     @Column(name = "part_in_img")
     private String partInImg;//参与图片(参与证明)
+    @Column(name = "cert_state")
+    private String certState;//材料审核状态
     @Column(name = "award_name")
     private String awardName;//奖项名称
     @Column(name = "award_rank")
@@ -95,6 +97,16 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     @Override
     public void setPartInImg(String partInImg) {
         this.partInImg = partInImg;
+    }
+
+    @Override
+    public String getCertState() {
+        return certState;
+    }
+
+    @Override
+    public void setCertState(String certState) {
+        this.certState = certState;
     }
 
     @Override

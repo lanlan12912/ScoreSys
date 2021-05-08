@@ -3,16 +3,17 @@
 // see http://vuejs-templates.github.io/webpack for documentation.
 
 const path = require('path')
+const viewConfig = require('../static/view.config.json')
 
 module.exports = {
   dev: {
 
     // Paths
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: viewConfig['context_path'],
     proxyTable: {
       '/scoresys.api': {
-        target: 'http://127.0.0.1:8100/scoresys.api',//设置你调用的接口域名和端口号 别忘了加http
+        target: viewConfig['api_url'],
         changeOrigin: true,
         pathRewrite: {
             '^/scoresys.api': ''
@@ -52,7 +53,7 @@ module.exports = {
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
     assetsSubDirectory: 'static',
-    assetsPublicPath: '/',
+    assetsPublicPath: viewConfig['context_path'],
 
     /**
      * Source Maps

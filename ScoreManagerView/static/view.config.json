@@ -1,0 +1,4 @@
+{
+    "context_path":"/score/",
+    "api_url":"http://127.0.0.1:8100/scoresys.api"
+}

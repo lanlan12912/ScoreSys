@@ -103,8 +103,13 @@ export const router =  new Router({
     }
   ]
 })
+const VueRouterPush = Router.prototype.push
+Router.prototype.push = function push (to) {
+  return VueRouterPush.call(this, to).catch(err => err)
+}
 
 router.beforeEach((to, from, next) => {
+
   if (to.path === '/login') {//跳转到登陆页面放行
     next();
   } else {

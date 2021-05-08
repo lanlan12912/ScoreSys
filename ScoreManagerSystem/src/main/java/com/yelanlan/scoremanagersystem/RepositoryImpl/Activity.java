@@ -31,12 +31,18 @@ public class Activity implements IActivity, Serializable {
     private String actState;//活动状态(未开始/进行中/已结束)
     @Column(name = "act_judge")
     private String actJudge;//审核状态（申报中，审核中，申报成功，申报失败）
+    @Column(name = "judge_user")
+    private String judegUser;//审核人
+    @Column(name = "judge_date")
+    private Timestamp judgeDate;//审核时间
     @Column(name = "act_rank")
     private String actRank;//活动等级
     @Column(name = "start_date")
     private Date startDate;//开始时间
     @Column(name = "end_date")
     private Date endDate;//结束时间
+    @Column(name = "del_flag")
+    private int delFlag;//删除标志（0未删除，1已删除）
     @Column(name = "crt_user")
     private String crtUser;//创建人
     @Column(name = "crt_date")
@@ -163,6 +169,26 @@ public class Activity implements IActivity, Serializable {
     }
 
     @Override
+    public String getJudegUser() {
+        return judegUser;
+    }
+
+    @Override
+    public void setJudegUser(String judegUser) {
+        this.judegUser = judegUser;
+    }
+
+    @Override
+    public Timestamp getJudgeDate() {
+        return judgeDate;
+    }
+
+    @Override
+    public void setJudgeDate(Timestamp judgeDate) {
+        this.judgeDate = judgeDate;
+    }
+
+    @Override
     public String getActRank() {
         return actRank;
     }
@@ -190,6 +216,16 @@ public class Activity implements IActivity, Serializable {
     @Override
     public void setEndDate(Date endDate) {
         this.endDate = endDate;
+    }
+
+    @Override
+    public int getDelFlag() {
+        return delFlag;
+    }
+
+    @Override
+    public void setDelFlag(int delFlag) {
+        this.delFlag = delFlag;
     }
 
     @Override

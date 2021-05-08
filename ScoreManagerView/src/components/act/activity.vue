@@ -20,13 +20,16 @@
                     </Select>
                 </FormItem>
                 <FormItem :label-width='30'>
-                    <Button type="primary" size="small" icon="ios-search-outline" @click="getActList">查询</Button>
+                    <Button type="primary" size="small" icon="ios-search-outline" @click="getAllActList(1)">查询</Button>
                     <Button type="primary" size="small" icon="ios-refresh" @click="resetFilter">重置</Button>
                 </FormItem>
             </Form>
         </Row>
         <div class="activity">
-            <Row v-if="actList.length<=0" class="nodata"><div>暂无数据</div></Row>
+            <Row v-if="actList.length<=0"  class="nodata">
+                <img src="../../images/nodata1.jpg"></img>
+                <h2>暂无数据</h2>
+            </Row>
             <Row v-else class="actRow">
                 <Card @click.native="toDetail(item)"
                 v-for="(item,index) in actList"  :key="item.id" class="actCard" :title="item.actName"
@@ -35,14 +38,15 @@
                     <div class="content" >
                         <p :title="item.actHost">主办方：{{item.actHost}}</p>
                         <p :title="item.actSite">活动地点：{{item.actSite}}</p>
-                        <p :title="item.actDesc" class="desc">活动描述：{{item.actDesc}}</p>
-                        <span class="date">活动时间：{{item.startDate}}~{{item.endDate}}</span>
+                        <p :title="item.actDesc" >活动描述：{{item.actDesc}}</p>
+                        <p class="date">开始时间：{{item.startDate}}</p>
+                        <p class="date">结束时间：{{item.endDate}}</p>
                     </div>
                 </Card>
             </Row>
         </div>
         <Row span='2' class="page">
-            <Page :current="current" :total="total" :page-size="limit" show-total ></Page>
+            <Page :current="current" :total="total" :page-size="limit" show-total @on-change="getAllActList"></Page>
         </Row>
     </div>
 </template>
@@ -60,9 +64,9 @@ export default {
                 actRank:''
             },
             actList:[],
+            total:0,
             current:1,
             limit:10,
-            total:100,
         }
     },
     mounted(){
@@ -71,7 +75,8 @@ export default {
     },
     methods:{
         toDetail(act){
-            this.$router.push({path:"/act/actDetail"});
+            // act = JSON.stringify(act);
+            this.$router.push({path:"/act/actDetail",query:{actInfo:act}});
         },
         getActRanks(){
             this.$http.post("/getActRanks").then(
@@ -92,13 +97,18 @@ export default {
                 start:index == undefined?this.current:index,
                 limit:this.limit,
                 actName:this.actFilter.actName,
-                actHost:this.actFilter.actName,
-                actState:this.actFilter.actName,
-                actRank:this.actFilter.actName,
-            }
+                actHost:this.actFilter.actHost,
+                actState:this.actFilter.actState,
+                actRank:this.actFilter.actRank,
+                myAct:0,//0：全部活动；1：我参与的；2：我发布的；
+            };
             this.$http.post("/getAllActList",param).then(
                 res =>{
                     if(res.success){
+                        res.data.content.forEach(element => {
+                            element.startDate = this.$moment(element.startDate).format("YYYY-MM-DD");
+                            element.endDate = this.$moment(element.endDate).format("YYYY-MM-DD");
+                        });
                         this.actList = res.data.content;
                         this.total = res.data.totalElements;
                     }else{
@@ -117,6 +127,14 @@ export default {
     margin: 5px 10px 10px;
     background: #fff;
     height: 420px;
+    .nodata{
+        text-align: center;
+        img{
+            margin: 25px;
+            height: 300px;
+            width: 300px;
+        }
+    }
     .actRow{
         padding: 10px;
         display: block;
@@ -137,17 +155,12 @@ export default {
                     font-size: 6px;
                     vertical-align: bottom;
                 }
-                .desc{
-                    display: -webkit-box;
-                    -webkit-box-orient: vertical;
-                    -webkit-line-clamp: 1;
-                    overflow: hidden;
+                p{
+                    white-space:nowrap;/*只对中文起作用，强制换行*/
+                    overflow: hidden; 
+                    text-overflow:ellipsis;
                 }
             }
-        }
-        .nodata{
-            margin: 25%;
-            text-align: center;
         }
         .notStart{
             background: rgb(178, 180, 180);

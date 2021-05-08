@@ -11,6 +11,8 @@ public interface IParticipateInfo {
     public void setArtInState(String artInState);
     public String getPartInImg();
     public void setPartInImg(String partInImg);
+    public String getCertState();
+    public void setCertState(String certState);
     public String getAwardName();
     public void setAwardName(String awardName);
     public String getAwardRank();

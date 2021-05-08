@@ -11,7 +11,7 @@
         :key="index" 
         :class="isActive(tagroute) ? active : ''" 
         @on-close="handleClose(tagroute)">
-        <router-link :to="{path:tagroute.path}" :key="tagroute.path" class="content">
+        <router-link :to="tagroute" :key="tagroute.path" class="content">
             <span>{{tagroute.meta.title}}</span>
         </router-link>
     </Tag>
@@ -36,18 +36,16 @@ export default {
     },
     methods:{
         isActive(tagroute){
-            return tagroute.path == this.$route.path;
+            return tagroute == this.$route;
         },
         handleClose(tagroute){
             this.$store.commit("delTag",tagroute);
             let lastTag = this.tagList[this.tagList.length-1]
             //当标签列表还有元素的时候，跳转到最后一个tag
             if(lastTag!= null && ''!== lastTag){
-                console.log(11)
-                this.$router.replace({path:lastTag.path})
+                this.$router.replace(lastTag)
             }else{//当已经没有元素时，跳转到首页
-                console.log(22)
-                this.$router.replace({path:this.home.path})
+                this.$router.replace(this.home)
             }
         }
 

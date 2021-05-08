@@ -18,7 +18,7 @@
                             <DatePicker 
                             :value="actDate" 
                             type="daterange"  
-                            @on-change="tiemChange"></DatePicker>
+                            @on-change="tiemChange" :disabled="modifyFlag"></DatePicker>
                         </FormItem>
                     </Col>
                     <Col span = '12'>
@@ -30,7 +30,7 @@
                 <Row>
                     <Col span = '12'>
                         <FormItem prop="actRank" :label-width="80" label='活动等级'>
-                            <Select v-model="actInfo.actRank" readonly style="titem.codeext-align:left">
+                            <Select v-model="actInfo.actRank" readonly style="titem.codeext-align:left" :disabled="modifyFlag">
                                 <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
                             </Select>
                         </FormItem>
@@ -68,30 +68,39 @@
                     </Select>
                 </FormItem>
                 <FormItem :label-width='30'>
-                    <Button type="primary" size="small" icon="ios-search-outline" @click="getActList">查询</Button>
+                    <Button type="primary" size="small" icon="ios-search-outline" @click="getActs(1)">查询</Button>
                     <Button type="primary" size="small" icon="ios-refresh" @click="resetFilter">重置</Button>
                 </FormItem>
             </Form>
         </Row>
         <div class="activity">
-            <Tabs type="card" class="actRow">
+            <Tabs type="card" class="actRow" @on-click="changeTab">
                 <template slot="extra" class="actBtn">
                     <Button type="success" size="small" icon='md-add' @click="open()">我要发布</Button>
                 </template>
-                <TabPane label="我参与的">
-                    <Card v-for="(item,index) in actList" :title="item.actName" :key="item.id" 
+                <TabPane label="我参与的" name="myAct">
+                    <Row v-if="myActs.length<=0" class="nodata">
+                        <img src="../../images/nodata1.jpg"></img>
+                        <h2>暂无数据</h2>
+                    </Row>
+                    <Card v-for="(item,index) in myActs" :title="item.actName" :key="item.id" 
                     class="actCard" :class="item.actState == 'NOTSTART'?'notStart':(item.actState == 'ONGOING'?'onGoing':'ended')"
                      @click.native="toDetail(item)"
                     >
                         <div class="content">
                             <p :title="item.actHost">主办方：{{item.actHost}}</p>
                             <p :title="item.actSite">活动地点：{{item.actSite}}</p>
-                            <span class="date">活动时间：{{item.startDate}}~{{item.endDate}}</span>
+                            <p class="date">开始时间：{{item.startDate}}</p>
+                            <p class="date">结束时间：{{item.endDate}}</p>
                         </div>
                     </Card>
                 </TabPane>
-                <TabPane label="我发布的">
-                    <Card v-for="(item,index) in actList"  :key="item.id" 
+                <TabPane label="我发布的" name="releaseAct">
+                    <Row v-if="releaseActs.length<=0" class="nodata" >
+                        <img src="../../images/nodata1.jpg"></img>
+                        <h2>暂无数据</h2>
+                    </Row>
+                    <Card v-for="(item,index) in releaseActs"  :key="item.id" 
                     class="actCard" :class="item.actState == 'NOTSTART'?'notStart':(item.actState == 'ONGOING'?'onGoing':'ended')"
                     >
                     <p slot="title" @click="toDetail(item)">{{item.actName}}</p>
@@ -99,14 +108,15 @@
                             <Icon size="22" type="ios-clipboard-outline" title="修改信息" @click="modifyActInfo(item)"/>
                             <Icon size="22" type="md-trash" title="删除" @click="delActInfo(item)"/>
                             <p :title="item.actSite">活动地点：{{item.actSite}}</p>
-                            <span class="date">活动时间：{{item.startDate}}~{{item.endDate}}</span>
+                            <p class="date">开始时间：{{item.startDate}}</p>
+                            <p class="date">结束时间：{{item.endDate}}</p>
                         </div>
                     </Card>
                 </TabPane>
             </Tabs> 
         </div>
         <Row class="page">
-            <Page :current="current" :total="total" :page-size="limit" show-total ></Page>
+            <Page :current="current" :total="total" :page-size="limit" show-total @on-change="getActs"></Page>
         </Row> 
     </div>
 </template>
@@ -123,6 +133,7 @@ export default {
                 actRank:''
             },
             flag:false,
+            modifyFlag:false,
             actInfo:{
                 actName:'',
                 actRank:'',
@@ -153,96 +164,25 @@ export default {
                     {required:true, message:'请填写活动地点', trigger:'blur'}
                 ]
             },
-            actList:[
-                {
-                    id:'1',
-                    actName:'尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v',
-                    actState:'NOTSTART',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v',
-                    actSite:'便v较为方便我充电宝v京东方v背后腐败v',
-                },
-                {
-                    id:'2',
-                    actName:'尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v',
-                    actState:'ONGOING',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actSite:'便v较为方便我充电宝v京东方v背后腐败v',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'3',
-                    actName:'较为方便我充电宝v京东方v背',
-                    actState:'NOTSTART',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actSite:'便v较为方便我充电宝v京东方v背后腐败v',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'4',
-                    actName:'较为方便我充电宝v京东方v背',
-                    actState:'ONGOING',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'5',
-                    actName:'较为方便我充电宝v京东方v背',
-                    actState:'NOTSTART',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'6',
-                    actName:'hello',
-                    actState:'ENDED',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'7',
-                    actName:'hello',
-                    actState:'ENDED',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'8',
-                    actName:'hello',
-                    actState:'ENDED',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-                {
-                    id:'9',
-                    actName:'hello',
-                    actState:'ONGOING',
-                    startDate:'2017-3-5',
-                    endDate:'2017-4-10',
-                    actDesc:'差点把我尽快VCD具备就很方便v较为方便我充电宝v京东方v背后腐败v年度分红v的v年底哦v和i如何v比u发表v合法的v'
-                },
-            ],
+            myActs:[],
+            releaseActs:[],
+            total:0,
             current:1,
             limit:10,
-            total:10,
-            actRanks:[]
+            actRanks:[],
+            actType:1,
+            name:'myAct',
         }
     },
     mounted(){
         this.getActRanks();
+        this.getActs();
     },
     methods:{
         open(){
             this.$refs.actInfo.resetFields();
             this.flag = true;
+            this.actDate = [];
         },
         ok(){
             this.flag = false;
@@ -250,6 +190,7 @@ export default {
         },
         cancel(){
             this.flag = false;
+            this.modifyFlag = false;
         },
         getActRanks(){
             this.$http.post("/getActRanks").then(
@@ -276,24 +217,69 @@ export default {
         },
         tiemChange(event){
             this.actInfo.startDate = event[0];
-            this.actInfo.endDate = event[0];
+            this.actInfo.endDate = event[1];
             this.actDate = event;
         },
         toDetail(act){
-            console.log(act);
-            this.$router.push({path:"/act/actDetail"});
+            act = JSON.stringify(act);
+            this.$router.push({path:"/act/actDetail",query:{actInfo:act}});
         },
         modifyActInfo(act){
-            console.log(11,act);
+            this.open();
+            this.actInfo = act;
+            this.actDate.push(act.startDate);
+            this.actDate.push(act.endDate);
+            this.modifyFlag = true;
         },
         delActInfo(act){
-            console.log(22,act);
+            let param = act;
+            this.$http.post("/delActInfo",param).then(
+                res =>{
+                    if(res.success){
+                        this.$Message.success(res.msg);
+                        this.getActs();
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err =>{this.$Message.error("请求异常")});
         },
         resetFilter(){
             this.$refs.filterItem.resetFields();
         },
-        getActList(index){
-            console.log(this.actFilter)
+        changeTab(name){
+            this.name = name;
+            this.current = 1;
+            this.getActs();
+        },
+        getActs(index){
+            let param = {
+                start:index == undefined?this.current:index,
+                limit:this.limit,
+                actName:this.actFilter.actName,
+                actHost:this.actFilter.actHost,
+                actState:this.actFilter.actState,
+                actRank:this.actFilter.actRank,
+                myAct:this.name == undefined?0:(this.name == "myAct"?1:2),//0：全部活动；1：我参与的；2：我发布的；
+            };
+            this.$http.post("/getAllActList",param).then(
+                res =>{
+                    if(res.success){
+                        res.data.content.forEach(element => {
+                            element.startDate = this.$moment(element.startDate).format("YYYY-MM-DD");
+                            element.endDate = this.$moment(element.endDate).format("YYYY-MM-DD");
+                        });
+                        if(this.name == 'myAct'){
+                            this.myActs=res.data.content;
+                        }else{
+                            this.releaseActs=res.data.content;
+                        }
+                        this.total = res.data.totalElements;
+                    }else{
+                        this.$message.error(res.msg);
+                    }
+                }
+            ).catch(err => {this.$message.error("请求异常");});
         }
     }
 
@@ -302,8 +288,9 @@ export default {
 <style lang="less" scoped>
 .activity{
     padding:10px 10px 5px;
-    margin: 2px 10px 5px;
+    margin: 2px 10px 0px;
     background: #fff;
+    height: 420px;
     .actBtn{
         margin: 2px 5px;
     }
@@ -311,8 +298,16 @@ export default {
         display: block;
         position: relative;
         text-align: left;
+        .nodata{
+            text-align: center;
+            img{
+                margin: 20px;
+                height: 250px;
+                width: 250px;
+            }
+        }
         .actCard{
-            margin:8px 5px;
+            margin:5px;
             display: inline-block;
             width: 19%;
             overflow: hidden;
@@ -327,7 +322,6 @@ export default {
                     vertical-align: bottom;
                 }
                 p{
-                    // word-wrap:normal;/*--只对英文起作用，以单词作为换行依据*/
                     white-space:nowrap;/*只对中文起作用，强制换行*/
                     overflow: hidden; 
                     text-overflow:ellipsis;

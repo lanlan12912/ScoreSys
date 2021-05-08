@@ -20,12 +20,18 @@ public interface IActivity {
     public void setActState(String actState);
     public String getActJudge();
     public void setActJudge(String actJudge);
+    public String getJudegUser();
+    public void setJudegUser(String judegUser);
+    public Timestamp getJudgeDate();
+    public void setJudgeDate(Timestamp judgeDate);
     public String getActRank();
     public void setActRank(String actRank);
     public Date getStartDate();
     public void setStartDate(Date startDate);
     public Date getEndDate();
     public void setEndDate(Date endDate);
+    public int getDelFlag();
+    public void setDelFlag(int delFlag);
     public String getCrtUser();
     public void setCrtUser(String crtUser);
     public Timestamp getCrtDate();
