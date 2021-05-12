@@ -86,6 +86,22 @@ export const router =  new Router({
           },
           component:() =>import('@/components/act/activity-judge')
         },
+        {
+          path:"/act/judgeCert",
+          name:'JudgePartInfo',
+          meta:{
+            title:'获奖审核'
+          },
+          component:() =>import('@/components/act/judge-part-info')
+        },
+        {
+          path:"/score/scoreView",
+          name:'scoreView',
+          meta:{
+            title:'个人成绩'
+          },
+          component:() =>import('@/components/score/score-view')
+        },
       ]
     },
     {

@@ -3,6 +3,7 @@ package com.yelanlan.scoremanagersystem.ServiceImpl;
 import com.yelanlan.scoremanagersystem.DAO.DepartmentDAO;
 import com.yelanlan.scoremanagersystem.DAO.RoleResDAO;
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
+import com.yelanlan.scoremanagersystem.Enum.FilePathEnum;
 import com.yelanlan.scoremanagersystem.Enum.UserRankEnum;
 import com.yelanlan.scoremanagersystem.Enum.UserStateEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
@@ -12,8 +13,10 @@ import com.yelanlan.scoremanagersystem.RepositoryImpl.Department;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import com.yelanlan.scoremanagersystem.Utils.DateUtils;
+import com.yelanlan.scoremanagersystem.Utils.FileUtils;
 import com.yelanlan.scoremanagersystem.Utils.ParamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -23,10 +26,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import sun.misc.BASE64Encoder;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
@@ -42,6 +42,9 @@ public class UserService implements IUserService {
     DepartmentDAO departmentDAO;
     @Autowired
     RoleResDAO roleResDAO;
+    @Autowired
+    private Environment environment;
+
 
     /**
      * 当前账号常量
@@ -291,6 +294,51 @@ public class UserService implements IUserService {
             //插入新的数据
             userDAO.save(user);
             return new Message(true,"修改成功");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 上传头像
+     * @param imgFile
+     * @param imgType
+     * @param id
+     * @return
+     * */
+    public IMessage uploadHeadAvatar(String imgFile, String imgType, String id, FilePathEnum type){
+        try {
+            String path = environment.getProperty("spring.headImgPath")+"/";//#头像图片路径
+            String staticPath = environment.getProperty("spring.staticHeadImg")+"/";
+            String name = UUID.randomUUID().toString().replaceAll("-","");
+            String staticFullPath = "";
+            Message message = new Message();
+            staticFullPath = staticPath+name+imgType;
+            User user = userDAO.findUserByUserNumber(id);
+            if(null == user){
+                return new Message(false,"用户已不存在");
+            }
+            boolean flag= FileUtils.writeImg(imgFile,imgType,name,path);
+            if (flag) {
+                if (ParamUtils.allNotNull(user.getHeadAvatar())) {//更换头像前需将之前的头像删除
+                    if (FileUtils.deleteImg(path, user.getHeadAvatar().replaceAll(staticPath, ""))) {
+                        userDAO.updateUserHead(staticFullPath, id);//删除成功，更新数据库
+                    } else {
+                        return new Message(false, "删除原头像失败");
+                    }
+                } else {
+                    userDAO.updateUserHead(staticFullPath, id);
+                }
+                message.setMsg("上传成功");
+                message.setSuccess(true);
+                message.setData(staticFullPath);
+                return message;
+            } else {
+                message.setMsg("头像上传失败");
+                message.setSuccess(false);
+                return message;
+            }
         }catch (Exception e){
             e.printStackTrace();
             return new Message(false,"系统异常");

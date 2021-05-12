@@ -8,12 +8,11 @@
                 <FormItem label='主办方' prop="actHost" >
                     <Input v-model="actFilter.actHost" type="text"></Input>
                 </FormItem>
-                <FormItem label="活动状态" prop="actState">
+                <!-- <FormItem label="活动状态" prop="actState">
                      <Select v-model="actFilter.actState" readonly style="text-align:left">
                         <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
                     </Select>
-                </Dropdown>
-                </FormItem>
+                </FormItem> -->
                 <FormItem label="活动等级" prop="actRank" >
                     <Select v-model="actFilter.actRank"  readonly style="text-align:left">
                         <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>

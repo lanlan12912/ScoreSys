@@ -33,4 +33,9 @@ public interface UserDAO  extends JpaRepository<User,String> , JpaSpecificationE
     @Query("delete from User u where u.userNumber in (?1)")
     void deleteAllByUserNumbers(List<String> ids);
 
+    @Transactional
+    @Modifying
+    @Query("update User u set u.headAvatar = ?1 where u.userNumber = ?2")
+    int updateUserHead(String headAvatae,String userNumber);
+
 }

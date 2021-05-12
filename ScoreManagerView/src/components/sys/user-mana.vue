@@ -10,12 +10,12 @@
                 </FormItem>
                 <FormItem label="院/系" prop="departmentIds">
                     <Dropdown ref="depart" trigger="click" placement="bottom-start" style="width:100%" >
-                    <Input v-model="filterItem.departmentNames" readonly />
-                    <DropdownMenu slot="list">
-                        <Tree style="line-height: 1.5;float: left; width:100%;height:50%; padding:2px;overflow:auto" 
-                        :data="departList" show-checkbox @on-check-change="selectCollege"></Tree>
-                    </DropdownMenu>
-                </Dropdown>
+                        <Input v-model="filterItem.departmentNames" readonly />
+                        <DropdownMenu slot="list">
+                            <Tree style="line-height: 1.5;float: left; width:100%;height:50%; padding:2px;overflow:auto" 
+                            :data="departList" show-checkbox @on-check-change="selectCollege"></Tree>
+                        </DropdownMenu>
+                    </Dropdown>
                 </FormItem>
                 <FormItem label="用户状态" prop="userState" >
                     <Select  v-model="filterItem.userState" readonly style="text-align:left">
@@ -35,7 +35,7 @@
                 <Button class="grpBtn" type="error" size="small" icon='ios-trash-outline' @click="delUsers(false)">删除</Button>
             </Row>
             <Row>
-                <Table  ref="userTable" class="table" border size='small' :columns="columns" height='434' :data="data" ></Table>
+                <Table  ref="userTable" class="table" border size='small' :columns="columns" height='365' :data="data" ></Table>
             </Row>
         </Row>
         <Row span='2' class="page">
@@ -138,17 +138,20 @@ export default {
                 {
                     title:'用户账号',
                     key:'userNumber',
-                    width:'160'
+                    width:'160',
+                    tooltip:true,
                 },
                 {
                     title:'用户别名',
                     key:'userName',
-                    width:'100'
+                    width:'100',
+                    tooltip:true,
                 },
                 {
                     title:'院/系名称',
                     key:'departmentName',
-                    width:'100'
+                    width:'100',
+                    tooltip:true,
                 },
                 {
                     title:'用户身份',
@@ -158,17 +161,19 @@ export default {
                 {
                     title:'联系方式',
                     key:'userTeleno',
-                    width:'150'
+                    width:'150',
+                    tooltip:true,
                 },
                 {
                     title:'描述',
                     key:'userDesc',
-                    width:'202'
+                    width:'210',
+                    tooltip:true,
                 },
                 {
                     title:'用户状态',
                     key:'stateName',
-                    width:'90'
+                    width:'100'
                 },
                 {
                     title:'操作',

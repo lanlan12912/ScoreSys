@@ -7,6 +7,7 @@ var instance = axios.create({
   baseURL: '/scoresys.api',
   timeout: 60000,
   headers: {
+    // application/x-www-form-urlencoded
     'Content-Type': 'application/json;charset=UTF-8'
   },
   withCredentials: true  // 让ajax携带cookie

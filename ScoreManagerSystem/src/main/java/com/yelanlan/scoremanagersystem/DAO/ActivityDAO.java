@@ -21,6 +21,11 @@ public interface ActivityDAO extends JpaRepository<Activity,String>, JpaSpecific
     @Query("update Activity a set a.delFlag = 1 where a.id = ?1")
     int delActById(String id);
 
+    @Transactional
+    @Modifying
+    @Query("update Activity a set a.actImgs = ?1 where a.id = ?2")
+    int updateActImgs(String imgs,String id);
+
 
 
 

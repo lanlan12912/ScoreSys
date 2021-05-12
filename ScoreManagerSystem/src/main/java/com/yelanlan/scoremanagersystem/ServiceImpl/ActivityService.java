@@ -2,14 +2,19 @@ package com.yelanlan.scoremanagersystem.ServiceImpl;
 
 import com.yelanlan.scoremanagersystem.DAO.ActivityDAO;
 import com.yelanlan.scoremanagersystem.DAO.ParticipateDAO;
+import com.yelanlan.scoremanagersystem.DAO.UserDAO;
+import com.yelanlan.scoremanagersystem.Enum.ActRankEnum;
 import com.yelanlan.scoremanagersystem.Enum.ActStateEnum;
+import com.yelanlan.scoremanagersystem.Enum.PartInEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Activity;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.MScoreDTO;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.ParticipateInfo;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 import com.yelanlan.scoremanagersystem.ServiceIface.IActivityService;
 import com.yelanlan.scoremanagersystem.Utils.DateUtils;
+import com.yelanlan.scoremanagersystem.Utils.FileUtils;
 import com.yelanlan.scoremanagersystem.Utils.ParamUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -33,7 +38,7 @@ public class ActivityService implements IActivityService {
     @Autowired
     private ParticipateDAO participateDAO;
     @Autowired
-    private UserService userService;
+    private UserDAO userDao;
     @Autowired
     private Environment environment;
 
@@ -43,9 +48,8 @@ public class ActivityService implements IActivityService {
      * @retun
      * */
     @Override
-    public IMessage crtActivity(Map<String,String> map){
+    public IMessage crtActivity(Map<String,String> map,User user){
         try {
-            User user = userService.getCurrentUser();
             String id = UUID.randomUUID().toString().replaceAll("-","");
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
             Date satrtDate = sdf.parse(map.get("startDate"));
@@ -63,8 +67,8 @@ public class ActivityService implements IActivityService {
             }
             //初始化删除字段为未删除
             activity.setDelFlag(0);
-            //初始化审核状态为：申报中
-            activity.setActJudge(ActStateEnum.INDECLARATION.toString());
+            //初始化审核状态为：审核中
+            activity.setActJudge(ActStateEnum.INJUDGE.toString());
             activityDAO.save(activity);
             return new Message(true,"已添加，等待审核");
         }catch (Exception e){
@@ -109,9 +113,8 @@ public class ActivityService implements IActivityService {
      * @return
      * */
     @Override
-    public IMessage getAllActs(Map<String,Object> map,int start,int limit,int actFlag){
+    public IMessage getAllActs(Map<String,Object> map,int start,int limit,int actFlag,User currentUser){
         try {
-            User currentUser = userService.getCurrentUser();
             Specification<Activity> spec = new Specification<Activity>() {
                 @Override
                 public Predicate toPredicate(Root<Activity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -198,16 +201,15 @@ public class ActivityService implements IActivityService {
      * @return
      * */
     @Override
-    public IMessage getJudgeAct(Map<String,String> map,int start,int limit){
+    public IMessage getJudgeAct(Map<String,String> map,int start,int limit,User currentUser ){
         try {
-            User currentUser = userService.getCurrentUser();
             Specification<Activity> spec = new Specification<Activity>() {
                 @Override
                 public Predicate toPredicate(Root<Activity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                     List<Predicate> predicateList = new ArrayList<>();
                     //筛选未删除的活动信息
                     predicateList.add(criteriaBuilder.equal(root.get("delFlag"),0));
-                    //审核状态为通过
+                    //审核状态为审核中
                     predicateList.add(criteriaBuilder.equal(root.get("actJudge"),ActStateEnum.INJUDGE.toString()));
                     if(ParamUtils.allNotNull(map.get("actName"))){
                         predicateList.add(criteriaBuilder.like(root.get("actName"),String.valueOf(map.get("actName"))));
@@ -236,19 +238,161 @@ public class ActivityService implements IActivityService {
 
     /**
      * 上传活动照片，保存路径
-     * @param
+     * @param imgFiles
+     * @param id
      * @return
      * */
     @Override
-    public IMessage uploadImgs(){
+    public IMessage uploadImgs(List<String> imgFiles, String id){
         try {
-
-
-
-            Message message = new Message(true,"已上传");
-            message.setData("");
+            String path = environment.getProperty("spring.actImgPath")+"/";//#活动照片路径
+            String staticPath = environment.getProperty("spring.staticActImg")+"/";
+            boolean flag = false;
+            Activity activity = activityDAO.findAllById(id);
+            if (activity == null) {
+                return new Message(false, "找不到活动");
+            }
+            List<String> list = null;//将原来的图片转成列表
+            if (ParamUtils.allNotNull(activity.getActImgs())) {
+                list = Arrays.asList(activity.getActImgs().split(";"));
+            }
+            List<String> imgs = list == null ? new ArrayList<>() : new ArrayList<>(list);
+            Message message = new Message();
+            for (String file : imgFiles) {
+                String name = UUID.randomUUID().toString().replaceAll("-","");
+                String imgType = ".jpg";//确定文件类型
+                if (file.substring(5, 14).equals("image/png")) {
+                    imgType = ".png";
+                }
+                if (file.substring(5, 15).equals("image/jpeg") || file.substring(5, 14).equals("image/jpg")) {
+                    imgType = ".jpg";
+                }
+                String staticFullPath = staticPath + name + imgType;//前端展示路径
+                flag = FileUtils.writeImg(file, imgType, name, path);//保存图片
+                if (flag) {//保存成功
+                    imgs.add(staticFullPath);
+                    message.setMsg("上传成功");
+                    message.setSuccess(true);
+                    message.setData(imgs);
+                    continue;
+                } else {//保存失败
+                    message.setMsg("系统异常，上传失败");
+                    message.setSuccess(false);
+                    break;
+                }
+            }
+            activityDAO.updateActImgs(String.join(";", imgs), id);
             return message;
         }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 删除活动照片
+     * @param id
+     * @param actImg
+     * @return
+     * */
+    @Override
+    public IMessage delActImg(String id,String actImg){
+        try {
+            Activity activity = activityDAO.findAllById(id);
+            if(activity==null){
+                return new Message(false,"活动信息已找不到");
+            }
+            String path = environment.getProperty("spring.actImgPath")+"/";//boot中配置文件配置附件路径
+            String fileName = actImg.replaceAll(environment.getProperty("spring.staticActImg")+"/","");
+            List<String> imgs = Arrays.asList(activity.getActImgs().replaceAll(actImg, "").split(";"));
+            if(FileUtils.deleteImg(path,fileName)){//文件删除成功，更新数据库
+                imgs = imgs.stream().filter(item -> !item.equals(actImg)).collect(Collectors.toList());
+                activityDAO.updateActImgs(String.join(";", imgs),id);
+                Message message = new Message(true,"删除成功");
+                message.setData(imgs);
+                return message;
+            }else {//失败
+                return new Message(false,"删除失败");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 获取活动信息
+     * @param id
+     * @return
+     * */
+    @Override
+    public IMessage getActInfo(String id){
+        try {
+            Activity activity = activityDAO.findAllById(id);
+            Map<String,Object> map = new HashMap<>();
+            //获取活动的等级获奖分数
+            ActRankEnum rankEnum = ActRankEnum.valueOf(activity.getActRank());
+            List<MScoreDTO> scoreDTOS = new ArrayList<>();
+            for (PartInEnum o : PartInEnum.values()) {
+                switch (o){
+                    case FPRISE://一等奖
+                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore1()));
+                        break;
+                    case SPRISE://二等奖
+                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore2()));
+                        break;
+                    case TPRISE://三等奖
+                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore3()));
+                        break;
+                    case OPRISE://其他获奖
+                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getoPriseScore()));
+                        break;
+                    case PARTINED://参与
+                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPartScore()));
+                        break;
+                    default:
+                        break;
+                }
+            }
+            //分数降序
+            scoreDTOS = scoreDTOS.stream().sorted(Comparator.comparing(MScoreDTO::getValue).reversed()).collect(Collectors.toList());
+            //格式化活动级别
+            activity.setActRank(ActRankEnum.valueOf(activity.getActRank()).getName());
+            map.put("activity",activity);
+            map.put("scoreList",scoreDTOS);
+            Message message = new Message(true,"查询成功");
+            message.setData(map);
+            return message;
+        }catch (Exception e){
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 审核活动信息是否可以发布到使用
+     * @param actId
+     * @param actJudge
+     * @param user
+     * @return
+     * */
+    @Override
+    public IMessage judgeAct(String actId,String actJudge,User user){
+        try {
+            Activity activity = activityDAO.findAllById(actId);
+            if(null == activity){
+                return new Message(false,"活动信息已不存在");
+            }
+            if(activity.getDelFlag() == 1){
+                return new Message(false,"该活动已经被删除,无法操作");
+            }
+            activityDAO.delete(activity);
+            activity.setActJudge(ActStateEnum.valueOf(actJudge).toString());//更新审核状态
+            activity.setJudegUser(user.getUserNumber());
+            activity.setJudgeDate(DateUtils.getCurrentTime());
+            activityDAO.save(activity);
+            Message message = new Message(true,"已审核");
+            return message;
+        }catch (Exception e) {
             e.printStackTrace();
             return new Message(false,"系统异常");
         }

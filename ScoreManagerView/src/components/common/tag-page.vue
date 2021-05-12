@@ -36,7 +36,7 @@ export default {
     },
     methods:{
         isActive(tagroute){
-            return tagroute == this.$route;
+            return tagroute.path == this.$route.path;
         },
         handleClose(tagroute){
             this.$store.commit("delTag",tagroute);

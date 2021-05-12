@@ -7,20 +7,20 @@ public enum ActRankEnum {
     COLLEGE_LEVEL("院级",1,0.8,0.6,0.5,0.2)
     ;
     private final String name;//等级
-    private final double partScore;//参与得分
     private final double priseScore1;//一等奖获奖得分
     private final double priseScore2;//二等奖获奖得分
     private final double priseScore3;//三等奖获奖得分
     private final double oPriseScore;//其他获奖得分
+    private final double partScore;//参与得分
 
 
     ActRankEnum(String name, double priseScore1, double priseScore2, double priseScore3, double oPriseScore,double partScore) {
         this.name = name;
-        this.partScore = partScore;
         this.priseScore1 = priseScore1;
         this.priseScore2 = priseScore2;
         this.priseScore3 = priseScore3;
         this.oPriseScore = oPriseScore;
+        this.partScore = partScore;
     }
 
     public String getName() {

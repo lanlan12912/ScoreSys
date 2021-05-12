@@ -30,7 +30,7 @@ public class Activity implements IActivity, Serializable {
     @Column(name = "act_state")
     private String actState;//活动状态(未开始/进行中/已结束)
     @Column(name = "act_judge")
-    private String actJudge;//审核状态（申报中，审核中，申报成功，申报失败）
+    private String actJudge;//审核状态（审核中，申报成功，申报失败）
     @Column(name = "judge_user")
     private String judegUser;//审核人
     @Column(name = "judge_date")

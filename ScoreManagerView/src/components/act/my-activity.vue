@@ -42,8 +42,8 @@
                     </Col>
                 </Row>
                 <Row>
-                    <FormItem prop="actDes" :label-width="80" label="活动介绍">
-                        <Input type="textarea" v-model="actInfo.actDes"></Input>
+                    <FormItem prop="actDesc" :label-width="80" label="活动介绍">
+                        <Input type="textarea" v-model="actInfo.actDesc"></Input>
                     </FormItem>
                 </Row>
             </Form>
@@ -56,12 +56,11 @@
                 <FormItem label='主办方' prop="actHost" >
                     <Input v-model="actFilter.actHost" type="text"></Input>
                 </FormItem>
-                <FormItem label="活动状态" prop="actState">
+                <!-- <FormItem label="活动状态" prop="actState">
                     <Select v-model="actFilter.actState"  readonly style="text-align:left">
                         <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
                     </Select>
-                </Dropdown>
-                </FormItem>
+                </FormItem> -->
                 <FormItem label="活动等级" prop="actRank" >
                     <Select v-model="actFilter.actRank"  readonly style="text-align:left">
                         <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
@@ -141,7 +140,7 @@ export default {
                 startDate:'',
                 endDate:'',
                 actSite:'',
-                actDes:'',
+                actDesc:'',
             },
             actDate:[],
             actRule:{

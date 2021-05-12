@@ -8,11 +8,16 @@
                         <Row>
                             <Col span="10">
                                 <p><b>获奖得分：</b>
-                                    <p><b><img src="../../images/11.png">一等奖：</b>+4</p>
-                                    <p><b><img src="../../images/22.png">二等奖：</b>+3</p>
-                                    <p><b><img src="../../images/33.png">三等奖：</b>+2</p>
-                                    <p><b><img src="../../images/33.png">其他获奖：</b>+1</p>
-                                    <p><b><img src="../../images/33.png">参与得分：</b>+0.5</p>
+                                    <p v-for="item in scoreList">
+                                        <b>
+                                            <img src="../../images/11.png" v-if="item.code == 'FPRISE'"/>
+                                            <img src="../../images/22.png" v-if="item.code == 'SPRISE'"/>
+                                            <img src="../../images/33.png" v-if="item.code == 'TPRISE'"/>
+                                            <img src="../../images/33.png" v-if="item.code == 'OPRISE'"/>
+                                            <img src="../../images/33.png" v-if="item.code == 'PARTINED'"/>
+                                        {{item.name}}:</b>
+                                        {{item.value}}
+                                    </p>
                                 </p>
                             </Col>
                             <Col span="14">
@@ -24,12 +29,12 @@
                             </Col>
                         </Row>
                         <Row>
-                            <Button class="btns" type="info" @click="compeleteImg()">完善材料</Button>
-                            <Button class="btns" type="success">申报通过</Button>
-                            <Button class="btns" type="warning">申报退回</Button>
-                            <Button class="btns" type="success">我要报名</Button>
-                            <Button class="btns" type="success">我要参与</Button>
-                            <Button class="btns" type="info">审核材料</Button>
+                            <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" @click="compeleteImg()">完善材料</Button>
+                            <Button class="btns" type="success"  @click="signAct" :disabled="partInfo.partInState!=''&&partInfo.partInState!=null">我要报名</Button>
+                            <Button class="btns" type="success" @click="priseCert" :disabled="partInfo.certState == 'PASS'">已参与/已获奖</Button>
+                            <Button class="btns" type="success" :disabled="actInfo.actJudge!='INJUDGE'" v-if="getCurrentUser.userRank == 'ADMIN'||getCurrentUser.userRank == 'TEACHER'" @click="judgeAct('PASS')">通过申报</Button>
+                            <Button class="btns" type="warning" :disabled="actInfo.actJudge!='INJUDGE'" v-if="getCurrentUser.userRank == 'ADMIN'||getCurrentUser.userRank == 'TEACHER'" @click="judgeAct('REFUSED')">退回申报</Button>
+                            <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" @click="toJudgePartInfo">审核材料</Button>
                         </Row>
                     </div>
                 </Col>
@@ -40,7 +45,7 @@
                                 <img src="../../images/nodata1.jpg" />
                             </CarouselItem>
                             <CarouselItem v-if="actImgs.length>0" v-for="(item,index) in actImgs" :key="index">
-                                <img :src="item.src"/>
+                                <img :src="item"/>
                             </CarouselItem>
                         </Carousel>
                     </div>
@@ -75,9 +80,9 @@
                     <Col span="5">
                         <img src="../../images/nodata1.jpg"/>
                     </Col>
-                    <Col span="5">{{item.class}}</Col>
+                    <Col span="5">{{item.departName}}</Col>
                     <Col span="5">{{item.userName}}</Col>
-                    <Col span="5">+{{item.testScore}}</Col>
+                    <Col span="5">+{{item.score}}</Col>
                 </Row>
             </div>
         </Col>
@@ -88,11 +93,19 @@
             @on-cancel="cancel"
             :width="550"
             :height="500">
-            <div class="demo-upload-list" v-if="actImgs.length>0" v-for="item in actImgs">
+            <div class="demo-upload-list" v-if="actImgs.length>0" v-for="(item,index) in actImgs">
                 <template>
-                    <img :src="item.src">
+                    <img :src="item">
                     <div class="demo-upload-list-cover">
-                        <Icon type="ios-trash-outline" @click.native="handleRemove(item)"></Icon>
+                        <Icon type="ios-trash-outline" @click.native="handleRemove(item,index)"></Icon>
+                    </div>
+                </template>
+            </div>
+            <div class="demo-upload-list" v-if="uploadList.length>0" v-for="(item,index) in uploadList">
+                <template>
+                    <img :src="item">
+                    <div class="demo-upload-list-cover">
+                        <Icon type="ios-trash-outline" @click.native="remove(item,index)"></Icon>
                     </div>
                 </template>
             </div>
@@ -100,7 +113,6 @@
                 ref="upload"
                 :paste="true"
                 :multiple="false"
-                :default-file-list="uploadList"
                 :format="['jpg','jpeg','png']"
                 :max-size="2048"
                 :on-format-error="handleFormatError"
@@ -114,6 +126,47 @@
                 </div>
             </Upload>
         </Modal>
+        <Modal
+            v-model="modal"
+            title="参与/获奖上报"
+            @on-ok="ok1"
+            @on-cancel="cancle1"
+            :width="400">
+             <Form ref="partInfo" :model="partInfo" :rules="certRules">
+                <Row>
+                    <FormItem prop="partInState" :label-width="80" label='获奖级别'>
+                        <Select v-model="partInfo.partInState"  readonly style="text-align:left">
+                            <Option v-for="item in scoreList" :value="item.code" :key="item.code">{{item.name}}(+{{item.value}})</Option>
+                        </Select>
+                    </FormItem>
+                </Row>
+                <Row>
+                    <FormItem prop="actName" :label-width="80" label='证明图片' >
+                        <div class="demo-upload-list" v-if="partInfo.certImg != '' &&partInfo.certImg != null">
+                            <template >
+                                <img :src="partInfo.certImg">
+                            </template>
+                        </div>
+                        <Upload
+                            ref="upload"
+                            :paste="true"
+                            :multiple="false"
+                            :format="['jpg','jpeg','png']"
+                            :max-size="2048"
+                            :on-format-error="handleFormatError"
+                            :on-exceeded-size="handleMaxSize"
+                            :before-upload="handleBeforeUpload1"
+                            type="drag"
+                            action=""
+                            style="display: inline-block;width:58px;">
+                            <div style="width: 58px;height:58px;line-height: 58px;">
+                                <Icon type="ios-camera" size="20"></Icon>
+                            </div>
+                    </Upload>
+                    </FormItem>
+                </Row>
+            </Form>
+        </Modal>
     </div>
 </template>
 <script>
@@ -121,126 +174,171 @@ export default {
     name:'actDetail',
     data(){
         return{
+            scoreList:[],
+            modal:false,
             flag:false,
-            partUsers:[
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-                {
-                    userNumber:'2225554484',
-                    userName:'yelanlan',
-                    class:"计173-1",
-                    testScore:10,
-                    headAvatar:'../../images/nodata1.jpg'
-                },
-            ],
+            partUsers:[],
             actInfo:{
                 id:'',
                 actName:'',
                 actHost:'',
                 actDesc:'',
+                crtUser:'',
+                actRank:''
             },
-            actImgs:[
-                {src:require("../../images/1.png")},
-                {src:require("../../images/11.png")},
-                {src:require("../../images/22.png")}
+            partInfo:{
+                partInState:'',
+                certImg:'',
+            },
+            uploadList:[],
+            imgFile:[],
+            actImgs:[],
+            delImg:'',
+            priseRank:[
+                {
+                    code:"",
+                    name:''
+                },
+                {
+                    code:"",
+                    name:''
+                },
+                {
+                    code:"",
+                    name:''
+                },
+                {
+                    code:"",
+                    name:''
+                },
+                {
+                    code:"",
+                    name:''
+                },
+                {
+                    code:"",
+                    name:''
+                }
             ],
-            uploadImg:''
+            certRules:{
+                partInState:[
+                    {required:true, message:'请选择获奖级别', trigger:'change'}
+                ],
+                certImg:[
+                    {required:true, message:'请上传证明材料', trigger:'blur'}
+                ],
+            },
+            
         }
     },
     watch:{
         $route:{
+            deep: true,
             immediate: true, // 一旦监听到路由的变化立即执行
             handler(newval,oldval){
                 if(newval.path == '/act/actDetail')
+                this.imgFile = [];
+                this.uploadList = [];
+                this.actImgs = [];
                     if(this.$route.query !== null && this.$route.query !== undefined && JSON.stringify(this.$route.query)!=='{}'){
-                        this.actInfo = JSON.parse(this.$route.query.actInfo);
+                        let actInfo = JSON.parse(this.$route.query.actInfo);
+                        this.actInfo.id = actInfo.id;
+                        this.getActInfo(this.actInfo.id);
+                        this.getPartInfo();
                     }
             }   
         }
     },
     mounted(){
+        this.imgFile = [];
+        this.uploadList = [];
+        this.getActInfo(this.actInfo.id);
+        this.getPartInfo();
+        this.getActScoreSort();
+    },
+    computed:{
+        getCurrentUser(){
+            return this.$store.getters.getUser;
+        }
     },
     methods:{
+        getLevelScore(){
+            let param = {
+                level:this.actInfo.actRank
+            };
+            this.$http.post("")
+        },
+        getActInfo(id){
+            let param = {
+                id:id
+            };
+            this.$http.post("/getActInfo",param).then(
+                res=>{
+                    if(res.success){
+                        this.actInfo = res.data.activity;
+                        this.actInfo.startDate = this.$moment(this.actInfo.startDate).format("YYYY-MM-DD")
+                        this.actInfo.endDate = this.$moment(this.actInfo.endDate).format("YYYY-MM-DD")
+                        this.scoreList = res.data.scoreList;
+                        this.$nextTick(()=>{
+                            this.actImgs = this.actInfo.actImgs!=null&&this.actInfo.actImgs!=""?this.actInfo.actImgs.split(";"):[];
+                        })
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")})
+        },
         ok(){
-           this.$Message.success("ok")
+            if(this.imgFile.length>0){
+                let param ={
+                    id:this.actInfo.id,
+                    imgFile:this.imgFile
+                }
+                this.$http.post("/uploadImgs",param).then(
+                res =>{
+                    if(res.success){
+                        this.actImgs = res.data;
+                        return true;
+                    }else{
+                        this.$Message.error(res.msg);
+                        return false;
+                    }
+                }).catch(err=>{
+                    this.$Message.error("请求异常")
+                    return false;
+                });
+            }
         },
         cancel(){
-            alert
+            this.imgFile = [];
+            this.uploadList = [];
             this.flag = false;
+            // this.getActInfo(this.actInfo.id);
         },
         compeleteImg(){
+            this.imgFile = [];
+            this.uploadList = [];
             this.flag = true;
         },
-        handleRemove (file) {
-            this.uploadList.splice(fileList.indexOf(file), 1);
+        handleRemove (item,index) {
+             console.log(index,this.actImgs[index])
+            let param = {
+                id:this.actInfo.id,
+                actImg:item
+            }
+            this.$http.post("/delActImg",param).then(
+                res=>{
+                    if(res.success){
+                        this.$nextTick(()=>{
+                            this.actImgs.splice(index,1)
+                        })
+                        console.log(888,this.actImgs);
+                        this.$Message.success(res.msg);
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err=>{this.$Message.error(err)});
         },
         handleFormatError (file) {
             this.$Notice.warning({
@@ -259,13 +357,150 @@ export default {
             if (!check) {
                 this.$Notice.warning({title: '最多可上传 5 张图片'});
             }
-            let param ={
-                id:this.actInfo.id,
-                imgFile:file,
-            }
-            console.log(file)
-            this.actImgs.push(file)
+            let that = this;
+            this.getBase64(file).then(
+                res =>{
+                    this.$nextTick(()=>{
+                        this.imgFile.push(res);
+                        this.uploadList.push(res);
+                    })
+                }
+            ).catch(err => {this.$Message.error(err)});
             return check;
+        },
+        getBase64(file) {
+            return new Promise(function(resolve, reject) {
+                let reader = new FileReader();
+                let imgResult = "";
+                reader.readAsDataURL(file);
+                reader.onload = function() {
+                    imgResult = reader.result;
+                };
+                reader.onerror = function(error) {
+                    reject(error);
+                };
+                reader.onloadend = function() {
+                    resolve(imgResult);
+                };
+            });
+        },
+        remove(item,index){
+            this.$nextTick(()=>{
+                this.imgFile.splice(index,1);
+                this.uploadList.splice(index,1);
+            })
+            
+        },
+        signAct(){
+            let param = {
+                id:this.actInfo.id
+            };
+            this.$http.post("/signAct",param).then(
+                res=>{
+                    if(res.success){
+                        this.$Message.success(res.msg);
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")})
+        },
+        getPartInfo(){
+            let param = {
+                id:this.actInfo.id
+            };
+            this.$http.post("/getPartInfo",param).then(
+                res=>{
+                    if(res.success){
+                        this.partInfo = res.data;
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")})
+        },
+        priseCert(){
+            this.certImg = '';
+            this.modal = true;
+        },
+        handleBeforeUpload1(file){
+            const check = this.actImgs.length < 5;
+            if (!check) {
+                this.$Notice.warning({title: '最多可上传 5 张图片'});
+            }
+            let that = this;
+            this.getBase64(file).then(
+                res =>{
+                    this.$nextTick(()=>{
+                        this.partInfo.certImg = res;
+                    })
+                }
+            ).catch(err => {this.$Message.error(err)});
+            return check;
+        },
+        ok1(){
+            if(this.partInfo.certImg==''){
+                this.$Message.error("请上传图片")
+                return;
+            }else{
+                let param = {
+                    actId:this.actInfo.id,
+                    certImg:this.partInfo.certImg,
+                    partInState:this.partInfo.partInState
+                };
+                this.$http.post("/uploadCertImg",param).then(
+                    res=>{
+                        if(res.success){
+                            this.partInfo = res.data;
+                            this.$Message.success(res.msg)
+                        }else{
+                            this.$Message.error(res.msg);
+                        }
+                    }
+                ).catch(err=>{this.$Message.error("请求异常")})
+            }
+        },
+        cancle1(){
+            this.$refs.partInfo.resetFields();
+            this.modal = false;
+        },
+        judgeAct(str){
+            let param={
+                actId:this.actInfo.id,
+                actJudge:str
+            };
+            this.$http.post("/judgeAct",param).then(
+                res =>{
+                    if(res.success){
+                        if(str == 'PASS'){
+                            this.$Message.success('已通过审核')
+                        }
+                        if(str == 'REFUSED'){
+                            this.$Message.success('已退回')
+                        }
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")})
+        },
+        toJudgePartInfo(){
+            let act = JSON.stringify(this.actInfo);
+            this.$router.push({path:"/act/judgeCert",query:{actInfo:act}})
+        },
+        getActScoreSort(){
+            let param ={
+                actId:this.actInfo.id
+            };
+            this.$http.post("/getActScoreSort",param).then(
+                res=>{
+                    if(res.success){
+                        this.partUsers=res.data;
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")})
         }
     }
 }

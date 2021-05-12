@@ -17,35 +17,31 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     private String id;//主键id
     @Column(name = "act_id")
     private String actId;//活动id
+    @Column(name = "act_rank")
+    private String actRank;//奖项级别（院级/校级/省级/国家级）
     @Column(name = "user_number")
     private String userNumber;//参与人id
-    @Column(name = "art_in_state")
-    private String artInState;//参与（已报名/已参与/已获奖）
-    @Column(name = "part_in_img")
-    private String partInImg;//参与图片(参与证明)
+    @Column(name = "part_in_state")
+    private String partInState;//参与（已报名/已参与/一获奖/二获奖/三获奖/其他获奖））
+    @Column(name = "cert_img")
+    private String certImg;//图片(参与证明/获奖证明)
     @Column(name = "cert_state")
     private String certState;//材料审核状态
-    @Column(name = "award_name")
-    private String awardName;//奖项名称
-    @Column(name = "award_rank")
-    private String awardRank;//奖项级别（院级/校级/省级/国家级）
-    @Column(name = "certificate_img")
-    private String certificateImg;//证书图片（获奖证明）
     @Column(name = "measure_score")
     private double measureScore;//测评分数
 
     public ParticipateInfo() {
     }
 
-    public ParticipateInfo(String id, String actId, String userNumber, String artInState, String partInImg, String awardName, String awardRank, String certificateImg, double measureScore) {
+
+
+    public ParticipateInfo(String id, String actId, String userNumber, String partInState, String certImg, String actRank, double measureScore) {
         this.id = id;
         this.actId = actId;
         this.userNumber = userNumber;
-        this.artInState = artInState;
-        this.partInImg = partInImg;
-        this.awardName = awardName;
-        this.awardRank = awardRank;
-        this.certificateImg = certificateImg;
+        this.partInState = partInState;
+        this.certImg = certImg;
+        this.actRank = actRank;
         this.measureScore = measureScore;
     }
 
@@ -80,23 +76,23 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     }
 
     @Override
-    public String getArtInState() {
-        return artInState;
+    public String getPartInState() {
+        return partInState;
     }
 
     @Override
-    public void setArtInState(String artInState) {
-        this.artInState = artInState;
+    public void setPartInState(String partInState) {
+        this.partInState = partInState;
     }
 
     @Override
-    public String getPartInImg() {
-        return partInImg;
+    public String getCertImg() {
+        return certImg;
     }
 
     @Override
-    public void setPartInImg(String partInImg) {
-        this.partInImg = partInImg;
+    public void setCertImg(String certImg) {
+        this.certImg = certImg;
     }
 
     @Override
@@ -110,33 +106,13 @@ public class ParticipateInfo implements IParticipateInfo, Serializable {
     }
 
     @Override
-    public String getAwardName() {
-        return awardName;
+    public String getActRank() {
+        return actRank;
     }
 
     @Override
-    public void setAwardName(String awardName) {
-        this.awardName = awardName;
-    }
-
-    @Override
-    public String getAwardRank() {
-        return awardRank;
-    }
-
-    @Override
-    public void setAwardRank(String awardRank) {
-        this.awardRank = awardRank;
-    }
-
-    @Override
-    public String getCertificateImg() {
-        return certificateImg;
-    }
-
-    @Override
-    public void setCertificateImg(String certificateImg) {
-        this.certificateImg = certificateImg;
+    public void setActRank(String actRank) {
+        this.actRank = actRank;
     }
 
     @Override
