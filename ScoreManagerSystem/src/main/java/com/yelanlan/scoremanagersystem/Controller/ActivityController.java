@@ -1,6 +1,7 @@
 package com.yelanlan.scoremanagersystem.Controller;
 
 import com.yelanlan.scoremanagersystem.Enum.ActRankEnum;
+import com.yelanlan.scoremanagersystem.Enum.ActStateEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
@@ -13,10 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 public class ActivityController {
@@ -213,4 +212,44 @@ public class ActivityController {
         String actId = map.get("actId");
         return participateService.getPartList(start,limit,actId,map);
     }
+
+    @RequestMapping("/passCert")
+    public IMessage passCert(@RequestBody Map<String,String> map){
+        if(!ParamUtils.allNotNull(map.get("partId"),map.get("judgeFlag"))){
+            return new Message(false,"参数异常");
+        }
+        if(ActStateEnum.valueOf(map.get("judgeFlag")) == null){
+            return new Message(false,"参数异常");
+        }
+        return participateService.passCert(map.get("partId"),ActStateEnum.valueOf(map.get("judgeFlag")));
+    }
+
+    @RequestMapping("/getMyScoreInfo")
+    public IMessage getMyScoreInfo(@RequestBody Map<String,String> map){
+        try {
+            User user = userService.getCurrentUser();
+            if(null== user){
+                return new Message(false,"请登陆后操作");
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startDate = null;
+            Date endDate = null;
+            if(ParamUtils.allNotNull(map.get("startDate"))){
+                startDate = sdf.parse(map.get("startDate"));
+            }
+            if(ParamUtils.allNotNull(map.get("endDate"))){
+                endDate = sdf.parse(map.get("endDate"));
+            }
+            return participateService.getMyScoreInfo(user,startDate,endDate);
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    @RequestMapping("/getAllRank")
+    public IMessage getAllRank(@RequestBody Map<String,String> map){
+        return participateService.getAllRank(map);
+    }
+
 }

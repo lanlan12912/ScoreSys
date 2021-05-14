@@ -26,7 +26,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import sun.misc.BASE64Encoder;
 
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.security.MessageDigest;
@@ -44,7 +47,6 @@ public class UserService implements IUserService {
     RoleResDAO roleResDAO;
     @Autowired
     private Environment environment;
-
 
     /**
      * 当前账号常量
@@ -139,7 +141,7 @@ public class UserService implements IUserService {
             User user = new User();
             user.setUserName(map.get("userName"));
             user.setDepartmentId(map.get("departmentId"));
-            user.setUserRank(map.get("userRank"));
+            user.setUserRank(UserRankEnum.valueOf(map.get("userRank")).toString());
             user.setUserState(map.get("userState"));
             user.setUserTeleno(ParamUtils.allNotNull(map.get("userTeleno"))?map.get("userTeleno"):"");
             user.setUserDesc(ParamUtils.allNotNull(map.get("userDesc"))?map.get("userDesc"):"");

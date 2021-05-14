@@ -18,7 +18,7 @@
                             <DatePicker 
                             :value="actDate" 
                             type="daterange"  
-                            @on-change="tiemChange" :disabled="modifyFlag"></DatePicker>
+                            @on-change="tiemChange" ></DatePicker>
                         </FormItem>
                     </Col>
                     <Col span = '12'>
@@ -56,11 +56,6 @@
                 <FormItem label='主办方' prop="actHost" >
                     <Input v-model="actFilter.actHost" type="text"></Input>
                 </FormItem>
-                <!-- <FormItem label="活动状态" prop="actState">
-                    <Select v-model="actFilter.actState"  readonly style="text-align:left">
-                        <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
-                    </Select>
-                </FormItem> -->
                 <FormItem label="活动等级" prop="actRank" >
                     <Select v-model="actFilter.actRank"  readonly style="text-align:left">
                         <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
@@ -74,8 +69,8 @@
         </Row>
         <div class="activity">
             <Tabs type="card" class="actRow" @on-click="changeTab">
-                <template slot="extra" class="actBtn">
-                    <Button type="success" size="small" icon='md-add' @click="open()">我要发布</Button>
+                <template slot="extra" class="actBtn" v-if="getUser.userRank == 'STULEADER' ||getUser.userRank == 'TEACHER'||getUser.userRank == 'ADMIN' ">
+                    <Button type="success" size="small" icon='md-add'  @click="open()">我要发布</Button>
                 </template>
                 <TabPane label="我参与的" name="myAct">
                     <Row v-if="myActs.length<=0" class="nodata">
@@ -94,7 +89,7 @@
                         </div>
                     </Card>
                 </TabPane>
-                <TabPane label="我发布的" name="releaseAct">
+                <TabPane v-if="getUser.userRank == 'STULEADER' ||getUser.userRank == 'TEACHER'||getUser.userRank == 'ADMIN'"  label="我发布的" name="releaseAct">
                     <Row v-if="releaseActs.length<=0" class="nodata" >
                         <img src="../../images/nodata1.jpg"></img>
                         <h2>暂无数据</h2>
@@ -177,6 +172,11 @@ export default {
         this.getActRanks();
         this.getActs();
     },
+    computed:{
+        getUser(){
+            return this.$store.getters.getUser;
+        },
+    },
     methods:{
         open(){
             this.$refs.actInfo.resetFields();
@@ -197,16 +197,17 @@ export default {
                     if(res.success){
                         this.actRanks = res.data;
                     }else{
-                        this.$message.error(res.msg)
+                        this.$Message.error(res.msg)
                     }
                 }
-            ).catch(err=>{this.$message.error("请求异常")});
+            ).catch(err=>{this.$Message.error("请求异常")});
         },
         saveActInfo(){
             let param = this.actInfo;
             this.$http.post("/saveActInfo",param).then(
                 res =>{
                     if(res.success){
+                        this.getActs();
                         this.$Message.success(res.msg);
                     }else{
                         this.$Message.error(res.msg);
@@ -275,10 +276,10 @@ export default {
                         }
                         this.total = res.data.totalElements;
                     }else{
-                        this.$message.error(res.msg);
+                        this.$Message.error(res.msg);
                     }
                 }
-            ).catch(err => {this.$message.error("请求异常");});
+            ).catch(err => {this.$Message.error("请求异常");});
         }
     }
 

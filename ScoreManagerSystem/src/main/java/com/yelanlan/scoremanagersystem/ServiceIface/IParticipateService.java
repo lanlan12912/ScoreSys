@@ -1,8 +1,10 @@
 package com.yelanlan.scoremanagersystem.ServiceIface;
 
+import com.yelanlan.scoremanagersystem.Enum.ActStateEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 
+import java.util.Date;
 import java.util.Map;
 
 public interface IParticipateService {
@@ -51,4 +53,28 @@ public interface IParticipateService {
      * @return
      * */
     public IMessage getPartList(int start, int limit, String actId, Map<String,String> filter);
+
+    /**
+     * 审核上传的证明材料
+     * @param partId
+     * @param certState
+     * @return
+     * */
+    public IMessage passCert(String partId, ActStateEnum certState);
+
+    /**
+     * 获取当前用户的成绩信息
+     * @param user
+     * @param startDate
+     * @param endDate
+     */
+    public IMessage getMyScoreInfo(User user, Date startDate, Date endDate );
+
+    /**
+     * 获取排行榜
+     * @param map
+     * @return
+     * */
+    public IMessage getAllRank(Map<String,String> map);
+
 }

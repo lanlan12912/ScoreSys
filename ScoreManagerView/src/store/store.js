@@ -43,8 +43,8 @@ const store = new Vuex.Store({
             }
           }
         },
-        removeAllTags(state,tag){
-          state.tagList.splice(1,state.tagList.length)
+        removeAllTags(state){
+          state.tagList.splice(0,state.tagList.length)
         }
     },
     getters:{

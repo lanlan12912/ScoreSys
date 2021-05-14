@@ -10,7 +10,7 @@
                 </FormItem>
                 <!-- <FormItem label="活动状态" prop="actState">
                      <Select v-model="actFilter.actState" readonly style="text-align:left">
-                        <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
+                        <Option v-for="item in actStates" :value="item.code" :key="item.code">{{item.name}}</Option>
                     </Select>
                 </FormItem> -->
                 <FormItem label="活动等级" prop="actRank" >
@@ -62,6 +62,20 @@ export default {
                 actState:'',
                 actRank:''
             },
+            actStates:[
+                {
+                    code:'NOTSTART',
+                    name:'未开始'
+                },
+                {
+                    code:'ONGOING',
+                    name:'进行中'
+                },
+                {
+                    code:'ENDED',
+                    name:'已结束'
+                }
+            ],
             actList:[],
             total:0,
             current:1,
@@ -74,7 +88,7 @@ export default {
     },
     methods:{
         toDetail(act){
-            // act = JSON.stringify(act);
+            act = JSON.stringify(act);
             this.$router.push({path:"/act/actDetail",query:{actInfo:act}});
         },
         getActRanks(){
@@ -83,13 +97,16 @@ export default {
                     if(res.success){
                         this.actRanks = res.data;
                     }else{
-                        this.$message.error(res.msg)
+                        this.$Message.error(res.msg)
                     }
                 }
-            ).catch(err=>{this.$message.error("请求异常")});
+            ).catch(err=>{this.$Message.error("请求异常")});
         },
         resetFilter(){
-            this.$refs.filterItem.resetFields();
+            this.actFilter.actName='';
+            this.actFilter.actHost='';
+            this.actFilter.actState='';
+            this.actFilter.actRank='';
         },
         getAllActList(index){
             let param = {
@@ -111,10 +128,10 @@ export default {
                         this.actList = res.data.content;
                         this.total = res.data.totalElements;
                     }else{
-                        this.$message.error(res.msg);
+                        this.$Message.error(res.msg);
                     }
                 }
-            ).catch(err => {this.$message.error("请求异常");});
+            ).catch(err => {this.$Message.error("请求异常");});
         },
     }
 

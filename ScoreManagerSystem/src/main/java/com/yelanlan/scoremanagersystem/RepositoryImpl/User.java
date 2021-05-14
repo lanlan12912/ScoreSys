@@ -23,7 +23,7 @@ public class User implements IUser,Serializable {
     @Column(name = "user_state")
     private String userState;//用户状态（停用，启用）
     @Column(name = "user_rank")
-    private String userRank;//身份：学生/老师/系统管理员；
+    private String userRank;//身份：学生/老师/系统管理员/学生干部；
     @Column(name = "user_teleno")
     private String userTeleno;//固定电话号码
     @Column(name = "user_crtdate")

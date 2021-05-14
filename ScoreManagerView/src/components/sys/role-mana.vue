@@ -65,21 +65,25 @@ export default {
                 {
                     title:'角色名称',
                     key:'roleName',
-                    width:'150'
+                    width:'150',
+                    tooltip:true,
                 },
                 {
                     title:'创建人',
                     key:'crtUser',
-                    width:'150'
+                    width:'150',
+                    tooltip:true,
                 },
                 {
                     title:'角色描述',
-                    key:'roleDes'
+                    key:'roleDes',
+                    tooltip:true,
                 },
                 {
                     title:'创建时间',
                     key:'crtDate',
-                    width:'150'
+                    width:'150',
+                    tooltip:true,
                 },
                 {
                     title:'操作',

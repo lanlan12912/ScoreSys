@@ -21,7 +21,7 @@ public interface MenuDAO extends JpaRepository<Menu,String> {
     @Query("select m  from Menu m order by m.orders asc")
     List<Menu> findAllOrOrderByOrders();
 
-    @Query("select m from Menu m where m.menuId in (?1) order by m.orders")
+    @Query("select m from Menu m where m.menuId in (?1) or m.parentId is null order by m.orders")
     List<Menu> findAllByMenuIdIn(List<String> menuIds);
 
     @Transactional

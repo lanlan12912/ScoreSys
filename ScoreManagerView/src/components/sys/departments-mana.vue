@@ -53,9 +53,6 @@ export default {
                 ],
                 departType:[
                     {required:true,message:'请选择院/系 类型',trigger:'blur'}
-                ],
-                departDesc:[
-                    {required:true, message:'请填写院系相关描述', trigger:'blur'}
                 ]
             },
             departList:[],

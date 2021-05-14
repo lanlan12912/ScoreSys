@@ -92,12 +92,27 @@ public class ActivityService implements IActivityService {
             if(activity.getDelFlag()==1){
                 return new Message(false,"活动已被删除");
             }
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date satrtDate = sdf.parse(map.get("startDate"));
+            Date endDate = sdf.parse(map.get("endDate"));
+            //更新活动状态
+            if(endDate.compareTo(new Date()) < 0 ){//结束日期小于当前日期，已结束
+                activity.setActState(ActStateEnum.ENDED.toString());
+            }else if (satrtDate.compareTo(new Date()) >0){//开始日期大于当前日期，未开始
+                activity.setActState(ActStateEnum.NOTSTART.toString());
+            }else {//进行中
+                activity.setActState(ActStateEnum.ONGOING.toString());
+            }
             //先将记录删除
             activityDAO.delete(activity);
             activity.setActName(map.get("actName"));
+            activity.setStartDate(satrtDate);
+            activity.setEndDate(endDate);
             activity.setActSite(map.get("actSite"));
             activity.setActHost(map.get("actHost"));
             activity.setActDesc(map.get("actDesc"));
+            //修改后重新审核
+            activity.setActJudge(ActStateEnum.INJUDGE.toString());
             //再新建一条记录
             activityDAO.save(activity);
             return new Message(true,"已修改");
@@ -128,7 +143,22 @@ public class ActivityService implements IActivityService {
                         predicateList.add(criteriaBuilder.like(root.get("actHost"),String.valueOf(map.get("actHost"))));
                     }
                     if(ParamUtils.allNotNull(map.get("actState"))){
-                        predicateList.add(criteriaBuilder.equal(root.get("actState"),String.valueOf(map.get("actState"))));
+                        Date now = new Date();
+                        switch (ActStateEnum.valueOf(String.valueOf(map.get("actState")))){
+                            case NOTSTART:
+                                predicateList.add(criteriaBuilder.lessThan(root.get("startDate"),now));
+                                break;
+                            case ONGOING:
+                                predicateList.add(criteriaBuilder.greaterThan(root.get("startDate"),now));
+                                predicateList.add(criteriaBuilder.lessThan(root.get("endDate"),now));
+                                break;
+                            case ENDED:
+                                predicateList.add(criteriaBuilder.greaterThan(root.get("endDate"),now));
+                                break;
+                            default:
+                                break;
+                        }
+
                     }
                     if(ParamUtils.allNotNull(map.get("actRank"))){
                         predicateList.add(criteriaBuilder.equal(root.get("actRank"),String.valueOf(map.get("actRank"))));
@@ -332,6 +362,14 @@ public class ActivityService implements IActivityService {
             Map<String,Object> map = new HashMap<>();
             //获取活动的等级获奖分数
             ActRankEnum rankEnum = ActRankEnum.valueOf(activity.getActRank());
+            //更新活动状态
+            if(activity.getEndDate().compareTo(new Date()) < 0 ){//结束日期小于当前日期，已结束
+                activity.setActState(ActStateEnum.ENDED.toString());
+            }else if (activity.getStartDate().compareTo(new Date()) >0){//开始日期大于当前日期，未开始
+                activity.setActState(ActStateEnum.NOTSTART.toString());
+            }else {//进行中
+                activity.setActState(ActStateEnum.ONGOING.toString());
+            }
             List<MScoreDTO> scoreDTOS = new ArrayList<>();
             for (PartInEnum o : PartInEnum.values()) {
                 switch (o){

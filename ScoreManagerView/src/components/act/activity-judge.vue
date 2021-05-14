@@ -83,10 +83,10 @@ export default {
                     if(res.success){
                         this.actRanks = res.data;
                     }else{
-                        this.$message.error(res.msg)
+                        this.$Message.error(res.msg)
                     }
                 }
-            ).catch(err=>{this.$message.error("请求异常")});
+            ).catch(err=>{this.$Message.error("请求异常")});
         },
         resetFilter(){
             this.$refs.filterItem.resetFields();
@@ -110,10 +110,10 @@ export default {
                         this.actList = res.data.content;
                         this.total = res.data.totalElements;
                     }else{
-                        this.$message.error(res.msg);
+                        this.$Message.error(res.msg);
                     }
                 }
-            ).catch(err => {this.$message.error("请求异常");});
+            ).catch(err => {this.$Message.error("请求异常");});
         },
     }
 

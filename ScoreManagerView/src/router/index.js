@@ -98,7 +98,7 @@ export const router =  new Router({
           path:"/score/scoreView",
           name:'scoreView',
           meta:{
-            title:'个人成绩'
+            title:'成绩排行'
           },
           component:() =>import('@/components/score/score-view')
         },

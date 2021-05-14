@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.Date;
 import java.util.List;
 
 public interface ActivityDAO extends JpaRepository<Activity,String>, JpaSpecificationExecutor<Activity> {
@@ -26,7 +27,8 @@ public interface ActivityDAO extends JpaRepository<Activity,String>, JpaSpecific
     @Query("update Activity a set a.actImgs = ?1 where a.id = ?2")
     int updateActImgs(String imgs,String id);
 
-
+    @Query("select a from Activity a where a.startDate >=?1 and a.endDate<=?2")
+    List<Activity> findAllByDate(Date startDate,Date endDate);
 
 
 }

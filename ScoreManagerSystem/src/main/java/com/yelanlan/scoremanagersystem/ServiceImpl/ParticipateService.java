@@ -10,7 +10,9 @@ import com.yelanlan.scoremanagersystem.Enum.PartInEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Activity;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.ActPartDetailDTO;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.CertInfoDTO;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.ScoreInfoDTO;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.UserScoreDTO;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Department;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.ParticipateInfo;
@@ -145,9 +147,9 @@ public class ParticipateService implements IParticipateService {
    public IMessage getUserActPartInfo(String actId,User user){
        try {
            ParticipateInfo participateInfo = participateDAO.findAllByUserNumberAndActId(user.getUserNumber(),actId);
-           if(participateInfo == null){
-               return new Message(false,"没有您的报名信息");
-           }
+//           if(participateInfo == null){
+//               return new Message(false,"没有您的报名信息");
+//           }
            Message message = new Message(true,"查询成功");
            message.setData(participateInfo);
            return message;
@@ -204,14 +206,13 @@ public class ParticipateService implements IParticipateService {
                 public Predicate toPredicate(Root<ParticipateInfo> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                     List<Predicate> predicateList = new ArrayList<>();
                     Path score = root.get("measureScore");
+                    //筛选某条活动的参与信息
+                    predicateList.add(criteriaBuilder.equal(root.get("actId"),filter.get("actId")));
                     //筛选符合参与状态不为空
                     predicateList.add(criteriaBuilder.notEqual(root.get("partInState"),criteriaBuilder.nullLiteral(String.class)));
                     predicateList.add(criteriaBuilder.notEqual(root.get("partInState"),""));
                     //也不为已报名的
                     predicateList.add(criteriaBuilder.notEqual(root.get("partInState"),PartInEnum.SIGNED.toString()));
-                    if(ParamUtils.allNotNull(filter.get("actRank"))){
-                        predicateList.add(criteriaBuilder.equal(root.get("actRank"),String.valueOf(filter.get("actRank"))));
-                    }
                     if(ParamUtils.allNotNull(filter.get("userNumber"))){
                         predicateList.add(criteriaBuilder.equal(root.get("userNumber"),String.valueOf(filter.get("userNumber"))));
                     }
@@ -262,4 +263,163 @@ public class ParticipateService implements IParticipateService {
             return new Message(false,"系统异常");
         }
     }
+
+    /**
+     * 审核上传的证明材料
+     * @param partId
+     * @param certState
+     * @return
+     * */
+    public IMessage passCert(String partId,ActStateEnum certState){
+        try {
+            ParticipateInfo participateInfo = participateDAO.findAllById(partId);
+            if(participateInfo == null){
+                return new Message(false,"参与记录已经不存在");
+            }
+            double score =0;
+            if(certState == ActStateEnum.PASS){
+                switch (PartInEnum.valueOf(participateInfo.getPartInState())){
+                    case PARTINED:
+                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPartScore();
+                        break;
+                    case TPRISE:
+                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore3();
+                        break;
+                    case SPRISE:
+                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore2();
+                        break;
+                    case OPRISE:
+                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getoPriseScore();
+                        break;
+                    case FPRISE:
+                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore1();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            participateDAO.addPartScore(score,certState.toString(),partId);
+            return new Message(true,"操作成功");
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 获取当前用户的成绩信息
+     * @param user
+     * @param startDate
+     * @param endDate
+     */
+    @Override
+    public IMessage getMyScoreInfo(User user,Date startDate,Date endDate ){
+        try {
+            ScoreInfoDTO scoreInfoDTO = new ScoreInfoDTO();
+            scoreInfoDTO.setUserNumber(user.getUserNumber());
+            scoreInfoDTO.setUserName(user.getUserName());
+            scoreInfoDTO.setTotalScore(0);
+            scoreInfoDTO.setSignEdAct(0);
+            scoreInfoDTO.setPartEdAct(0);
+            scoreInfoDTO.setPartEdAct(0);
+            scoreInfoDTO.setRanking("0");
+            Department department = departmentDAO.findDepartById(user.getDepartmentId());
+            if(null!=department){
+                scoreInfoDTO.setDepartName(department.getDepartName());
+            }
+            List<String> actIDs = new ArrayList<>();
+            //获取总分
+            Object[] objTotal = null;
+            List<ParticipateInfo> participateInfos = new ArrayList<>();
+            List<Object[]> ranklist = new ArrayList<>();
+            if(null!=startDate && null !=endDate){
+                List<Activity> activities = activityDAO.findAllByDate(startDate,endDate);
+                actIDs = activities.stream().map(Activity::getId).collect(Collectors.toList());
+                if(actIDs.size()>0) {
+                    //获取总分
+                    objTotal = participateDAO.getUserTotalScore(user.getUserNumber(),actIDs).get(0);
+                    participateInfos = participateDAO.getUserSignAct(user.getUserNumber(),actIDs,PartInEnum.SIGNED.toString());
+                    //获取排名
+                    ranklist=participateDAO.getUserRank(actIDs);
+                }else {
+                    //获取总分
+                    objTotal = participateDAO.getUserTotalScore(user.getUserNumber()).get(0);
+                    participateInfos = participateDAO.getUserSignAct(user.getUserNumber(),PartInEnum.SIGNED.toString());
+                    //获取排名
+                    ranklist=participateDAO.getUserRank();
+                }
+            }else {
+                //获取总分
+                objTotal = participateDAO.getUserTotalScore(user.getUserNumber()).get(0);
+                participateInfos = participateDAO.getUserSignAct(user.getUserNumber(),PartInEnum.SIGNED.toString());
+                //获取排名
+                ranklist=participateDAO.getUserRank();
+            }
+            scoreInfoDTO.setTotalScore(objTotal==null?0:(objTotal[0] == null?0:Double.parseDouble(String.valueOf(objTotal[0]))));
+            if(participateInfos.size()>0){
+                //获取报名条数
+                scoreInfoDTO.setSignEdAct(participateInfos.size());
+                //获取参与条数
+                scoreInfoDTO.setPartEdAct(participateInfos.stream().filter(item->item.getPartInState()==PartInEnum.PARTINED.toString())
+                        .collect(Collectors.toList()).size());
+                //获取获奖的条数
+                scoreInfoDTO.setPirseAct(participateInfos.stream().filter(item->item.getPartInState()!=PartInEnum.PARTINED.toString()
+                        &&item.getPartInState()!=PartInEnum.SIGNED.toString()).collect(Collectors.toList()).size());
+            }
+            if(ranklist.size()>0){
+                for(Object[] objects : ranklist){
+                    if(user.getUserNumber().equals(String.valueOf(objects[0]))){
+                        scoreInfoDTO.setRanking((ranklist.indexOf(objects)+1)+"/"+ranklist.size());
+                        break;
+                    }
+                }
+            }
+            Map<String,Object> res=  new HashMap<>();
+            res.put("scoreInfo",scoreInfoDTO);
+            //处理详情列表
+            List<ActPartDetailDTO> scoreInfoDTOS = new ArrayList<>();
+            for(ParticipateInfo info : participateInfos){
+                ActPartDetailDTO detailDTO = new ActPartDetailDTO(info.getId(),ActRankEnum.valueOf(info.getActRank()).getName(),
+                        PartInEnum.valueOf(info.getPartInState()).getName(),info.getCertImg(),info.getMeasureScore(),
+                        ActStateEnum.valueOf(info.getCertState()).getName());
+                Activity act = activityDAO.findAllById(info.getActId());
+                detailDTO.setActName(act.getActName());
+                detailDTO.setActDate(act.getStartDate()+"-"+act.getEndDate());
+                scoreInfoDTOS.add(detailDTO);
+            }
+            res.put("scoreDetails",scoreInfoDTOS);
+            Message message = new Message(true,"查询成功");
+            message.setData(res);
+            return message;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
+    /**
+     * 获取排行榜
+     * @param map
+     * @return
+     * */
+    @Override
+    public IMessage getAllRank(Map<String,String> map){
+        try {
+            List<UserScoreDTO> scoreDTOS = new ArrayList<>();
+            if(ParamUtils.allNotNull(map.get("departId"))){
+                List<User> users = userDAO.findAllByDepartmentId(map.get("departId"));
+                List<String> userIds = users.stream().map(User::getUserNumber).collect(Collectors.toList());
+                scoreDTOS = participateDAO.getAllByUsers(userIds);
+            }else {
+                scoreDTOS = participateDAO.getAll();
+            }
+            Message message = new Message(true,"查询成功");
+            message.setData(scoreDTOS);
+            return message;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
+    }
+
 }

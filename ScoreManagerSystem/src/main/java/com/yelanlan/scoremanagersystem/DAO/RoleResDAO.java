@@ -35,6 +35,9 @@ public interface RoleResDAO extends JpaRepository<RoleRes,String> {
     @Transactional
     @Query("delete from RoleRes  r where r.resId in (?1)")
     void deleteAllByRoesIds(List<String> resIds);
+
+    @Query("select r from RoleRes r where r.roleId in (?1)")
+    List<RoleRes> findAllByRoleIds(List<String> roleIds);
 }
 
  

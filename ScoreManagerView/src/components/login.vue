@@ -74,7 +74,8 @@
                       let token = cookieName[0].substr(6)
                       this.$store.commit("setToken",token)
                     }
-                    this.$router.push({path:'/home'})
+                    this.$store.commit("removeAllTags");
+                    this.$router.push({path:'/home'});
                     this.$Message.success(res.msg);
                   }else{
                     this.$Message.error("token已过期");
@@ -90,6 +91,10 @@
             }
           });
         },
+        reset(form){
+          this.formInline.user='';
+          this.formInline.password='';
+        }
       }
     }
 </script>

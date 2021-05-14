@@ -77,9 +77,7 @@
                     <Col span = '12'>
                         <FormItem label="用户身份" :label-width="80" prop="userRank">
                             <Select :disabled="!modifyFlag" v-model="userInfo.userRank" readonly style="text-align:left">
-                                <Option value="ADMIN" key="ADMIN">系统管理员</Option>
-                                <Option value="TEACHER" key="TEACHER">老师</Option>
-                                <Option value="STUDENT" key="STUDENT">学生</Option>
+                                <Option v-for="item in rankList" :value="item.code" :key="item,code">{{item.name}}</Option>
                             </Select>
                         </FormItem>
                     </Col>
@@ -287,13 +285,26 @@ export default {
             targetRoles:[],
             titles:["剩余角色","已分配角色"],
             userNumber:'',
+            rankList:[],
         }
     },
     mounted(){
+        this.getUserRanks();
         this.quUserList();
         this.quDepartTree();
     },
     methods:{
+        getUserRanks(){
+            this.$http.post("/getUserRanks").then(
+                res =>{
+                    if(res.success){
+                        this.rankList = res.data;
+                    }else{
+                        this.$Message.error(res.msg);
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")})
+        },
         selectCollege(nodes){
             this.filterItem.departmentIds = '';
             this.filterItem.departmentNames = '';

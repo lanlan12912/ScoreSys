@@ -21,8 +21,10 @@
                                 </p>
                             </Col>
                             <Col span="14">
+                                <p :title="actInfo.actJudge=='PASS'?'已通过':(actInfo.actJudge=='REFUSED'?'被拒绝':'审核中')"><b>申报状态：{{actInfo.actJudge=='PASS'?'已通过':(actInfo.actJudge=='REFUSED'?'被拒绝':'审核中')}}</b></p>
                                 <p :title="actInfo.actRank"><b>活动级别：{{actInfo.actRank}}</b></p>
                                 <p :title="actInfo.actHost"><b>主办方：{{actInfo.actHost}}</b></p>
+                                <p :title="actInfo.crtUser"><b>发起人：{{actInfo.crtUser}}</b></p>
                                 <p :title="actInfo.actSite"><b>活动地点：{{actInfo.actSite}}</b></p>
                                 <p :title="actInfo.startDate"><b>开始时间：{{actInfo.startDate}}</b></p>
                                 <p :title="actInfo.endDate"><b>结束时间：{{actInfo.endDate}}</b></p>
@@ -30,11 +32,11 @@
                         </Row>
                         <Row>
                             <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" @click="compeleteImg()">完善材料</Button>
-                            <Button class="btns" type="success"  @click="signAct" :disabled="partInfo.partInState!=''&&partInfo.partInState!=null">我要报名</Button>
-                            <Button class="btns" type="success" @click="priseCert" :disabled="partInfo.certState == 'PASS'">已参与/已获奖</Button>
+                            <Button class="btns" type="success"  @click="signAct" :disabled="actInfo.actState!='NOTSTART'||(actInfo.actJudge!='PASS'||(partInfo.partInState!=''&&partInfo.partInState!=null))">我要报名</Button>
+                            <Button class="btns" type="success" @click="priseCert" :disabled="actInfo.actState!='ENDED'||partInfo.certState == 'PASS'">已参与/已获奖</Button>
                             <Button class="btns" type="success" :disabled="actInfo.actJudge!='INJUDGE'" v-if="getCurrentUser.userRank == 'ADMIN'||getCurrentUser.userRank == 'TEACHER'" @click="judgeAct('PASS')">通过申报</Button>
                             <Button class="btns" type="warning" :disabled="actInfo.actJudge!='INJUDGE'" v-if="getCurrentUser.userRank == 'ADMIN'||getCurrentUser.userRank == 'TEACHER'" @click="judgeAct('REFUSED')">退回申报</Button>
-                            <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" @click="toJudgePartInfo">审核材料</Button>
+                            <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" :disabled="actInfo.actJudge!='PASS'" @click="toJudgePartInfo">审核材料</Button>
                         </Row>
                     </div>
                 </Col>
@@ -189,6 +191,7 @@ export default {
             partInfo:{
                 partInState:'',
                 certImg:'',
+                certState:'',
             },
             uploadList:[],
             imgFile:[],
@@ -262,12 +265,6 @@ export default {
         }
     },
     methods:{
-        getLevelScore(){
-            let param = {
-                level:this.actInfo.actRank
-            };
-            this.$http.post("")
-        },
         getActInfo(id){
             let param = {
                 id:id
@@ -313,7 +310,6 @@ export default {
             this.imgFile = [];
             this.uploadList = [];
             this.flag = false;
-            // this.getActInfo(this.actInfo.id);
         },
         compeleteImg(){
             this.imgFile = [];
@@ -321,7 +317,6 @@ export default {
             this.flag = true;
         },
         handleRemove (item,index) {
-             console.log(index,this.actImgs[index])
             let param = {
                 id:this.actInfo.id,
                 actImg:item
@@ -332,7 +327,6 @@ export default {
                         this.$nextTick(()=>{
                             this.actImgs.splice(index,1)
                         })
-                        console.log(888,this.actImgs);
                         this.$Message.success(res.msg);
                     }else{
                         this.$Message.error(res.msg);
@@ -399,6 +393,10 @@ export default {
                 res=>{
                     if(res.success){
                         this.$Message.success(res.msg);
+                        this.$nextTick(()=>{
+                            this.getPartInfo();
+                            this.getActScoreSort();
+                        })
                     }else{
                         this.$Message.error(res.msg);
                     }
@@ -412,7 +410,9 @@ export default {
             this.$http.post("/getPartInfo",param).then(
                 res=>{
                     if(res.success){
-                        this.partInfo = res.data;
+                        if(res.data!= null){
+                            this.partInfo = res.data;
+                        }
                     }else{
                         this.$Message.error(res.msg);
                     }
@@ -472,6 +472,9 @@ export default {
             this.$http.post("/judgeAct",param).then(
                 res =>{
                     if(res.success){
+                        this.$nextTick(()=>{
+                            this.getActInfo(this.actInfo.id);
+                        })
                         if(str == 'PASS'){
                             this.$Message.success('已通过审核')
                         }

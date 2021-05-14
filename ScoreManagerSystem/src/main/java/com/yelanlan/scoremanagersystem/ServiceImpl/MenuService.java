@@ -96,7 +96,10 @@ public class MenuService implements IMenuService {
                     break;
                 default://其他
                     //根据用户角色查询查询角色被授予的资源有哪些
-                    List<RoleRes> roleResList = roleResDAO.findAllByRoleId(user.getUserRank());
+                    //资源配置表role为用户编号，资源为角色id
+                    List<RoleRes> roleResList = roleResDAO.findAllByRoleId(user.getUserNumber());
+                    //根据角色查询出与菜单资源的配置关系
+                    roleResList = roleResDAO.findAllByRoleIds(roleResList.stream().map(RoleRes::getResId).collect(Collectors.toList()));
                     List<String> menuIds = roleResList.stream().map(RoleRes::getResId).collect(Collectors.toList());
                     //根据资源id查询出菜单列表
                     menuList = menuDAO.findAllByMenuIdIn(menuIds);
@@ -115,6 +118,7 @@ public class MenuService implements IMenuService {
                     }
                 }
             }
+            menuDTOS = menuDTOS.stream().filter(item->item.getChildPages().size()>0).collect(Collectors.toList());
             Message message = new Message(true,"查询成功");
             message.setData(menuDTOS);
             return message;

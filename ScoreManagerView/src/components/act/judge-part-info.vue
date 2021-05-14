@@ -2,11 +2,6 @@
     <div>
         <Row span ='2'>
             <Form  ref="partFilter" v-model="partFilter" :label-width="60" class="filter">
-                <FormItem label="活动等级" prop="actRank" >
-                    <Select v-model="partFilter.actRank" readonly style="text-align:left">
-                        <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
-                    </Select>
-                </FormItem>
                 <FormItem label='参与人账号' :label-width='80' prop="userNumber">
                     <Input v-model="partFilter.userNumber" type="text"></Input>
                 </FormItem>
@@ -19,7 +14,7 @@
                         </DropdownMenu>
                     </Dropdown>
                 </FormItem>
-                 <FormItem label="审核状态" prop="certState" >
+                 <FormItem label="审核状态" prop="certState">
                     <Select  v-model="partFilter.certState" readonly style="text-align:left">
                         <Option v-for="item in certStates" :value="item.code" :key="item.code">{{item.name}}</Option>
                     </Select>
@@ -46,12 +41,10 @@ export default {
         return{
             departList:[],
             partFilter:{
-                departIds:'',
-                departNames:'',
-                actName:'',
-                actRank:'',
                 userNumber:'',
-                certState:''
+                departIds:'',
+                certState:'',
+                departNames:'',
             },
             certStates:[
                 {
@@ -113,20 +106,18 @@ export default {
                     key:'certImg',
                     width:'125',
                     render:(h,params)=>{
-                        return h("img",{
-                            attrs:{
-                                src:params.row.certImg!=''&&params.row.certImg !=null?params.row.cerImg:'../../images/nodata1.jpg'
-                            },
-                            style:{
-                                width:'25px',
-                                height:'25px',
-                            },
-                            on: {
-                                click: () => {
-                                    this.viewImg(params.row)
+                        return h("viewer",[
+                            h("img",{
+                                attrs:{
+                                    src:params.row.certImg
+                                },
+                                style:{
+                                    width:'25px',
+                                    height:'25px',
                                 }
-                            }
-                        })
+                            })
+                        ])
+                         
                     }
                 },
                 {
@@ -158,7 +149,7 @@ export default {
                                         },
                                         on: {
                                             click: () => {
-                                                this.openRoleList(params.row)
+                                                this.passCert(params.row,true)
                                             }
                                         }
                                     }
@@ -183,7 +174,7 @@ export default {
                                         },
                                         on: {
                                             click: () => {
-                                                this.open(true,params.row)
+                                                this.passCert(params.row,false)
                                             }
                                         }
                                     })]
@@ -219,11 +210,27 @@ export default {
         this.getPartList();
     },
     methods:{
-        viewImg(item){
-            console.log(item)
+        passCert(partInfo,flag){
+            let param = {
+                judgeFlag:flag?'PASS':'REFUSED',
+                partId:partInfo.partId,
+            };
+            this.$http.post("/passCert",param).then(
+                res =>{
+                    if(res.success){
+                        this.getPartList(this.current);
+                        this.$Message.success(res.msg);
+                    }else{
+                        this.$Message.error(res.msg)
+                    }
+                }
+            ).catch(err=>{this.$Message.error("请求异常")});
         },
         resetFilter(){
-            this.$refs.partFilter.resetFields();
+            this.partFilter.userNumber='';
+            this.partFilter.departIds='';
+            this.partFilter.certState='';
+            this.partFilter.departNames='';
             this.partFilter.departNames='';
         },
         selectCollege(nodes){
@@ -264,16 +271,15 @@ export default {
                 start:index == undefined?this.current:index,
                 limit:this.limit,
                 actId:this.actId,
-                departIds:this.partFilter.departIds,
-                actRank:this.partFilter.actRank,
                 userNumber:this.partFilter.userNumber,
+                departIds:this.partFilter.departIds,
                 certState:this.partFilter.certState
             };
             this.$http.post("/getPartList",param).then(
                 res=>{
                     if(res.success){
                         this.partInfoList = res.data.content;
-                        this.$Message.success(rem.msg);
+                        this.total = res.data.totalElements;
                     }else{
                         this.$Message.error(res.msg);
                     }

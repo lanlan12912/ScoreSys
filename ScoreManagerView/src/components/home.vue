@@ -7,8 +7,9 @@
           <Col span="1">
             <Icon @click.native="collapsedSider" :class="rotateIcon" class="colseIcon"  type="md-menu" size="24"></Icon>
           </Col>
-          <Col span="4" class="rightHead">
+          <Col span="5" class="rightHead">
             <Avatar icon="ios-person" size="large" :src="headAvatar" class="headAvatar" />
+            <span class="name">{{currentUser.userRank=='STUDENT'?'普通学生':(currentUser.userRank=='TEACHER'?'老师':(currentUser.userRank=='ADMIN'?'管理员':'学生干部'))}}:</span>
             <span class="name">{{currentUser.userName}}</span>
             <span  @click="loginOut" class="extSpan"><Icon type="md-power" />退出</span>
           </Col>

@@ -3,6 +3,7 @@ package com.yelanlan.scoremanagersystem.Controller;
 import com.yelanlan.scoremanagersystem.Enum.UserRankEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.EnumDTO;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 import com.yelanlan.scoremanagersystem.ServiceIface.IUserService;
 import com.yelanlan.scoremanagersystem.Utils.ParamUtils;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -95,5 +97,27 @@ public class UserInfoController {
         }
         List<String> ids = (List<String>) map.get("users");
         return userService.delUserInfos(ids);
+    }
+
+    /**
+     * 获取用户身份
+     * @return
+     * */
+    @RequestMapping("/getUserRanks")
+    public IMessage getUserRanks(){
+        try {
+            List<EnumDTO> rankList = new ArrayList<>();
+            if(UserRankEnum.values().length>0) {
+                for (UserRankEnum rankEnum : UserRankEnum.values()) {
+                    rankList.add(new EnumDTO(rankEnum.toString(),rankEnum.getName()));
+                }
+            }
+            Message message = new Message(true,"查询成功");
+            message.setData(rankList);
+            return message;
+        }catch (Exception e){
+            e.printStackTrace();
+            return new Message(false,"系统异常");
+        }
     }
 }
