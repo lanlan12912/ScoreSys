@@ -3,7 +3,6 @@ package com.yelanlan.scoremanagersystem.ServiceImpl;
 import com.yelanlan.scoremanagersystem.DAO.DepartmentDAO;
 import com.yelanlan.scoremanagersystem.DAO.RoleResDAO;
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
-import com.yelanlan.scoremanagersystem.Enum.FilePathEnum;
 import com.yelanlan.scoremanagersystem.Enum.UserRankEnum;
 import com.yelanlan.scoremanagersystem.Enum.UserStateEnum;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
@@ -306,10 +305,10 @@ public class UserService implements IUserService {
      * 上传头像
      * @param imgFile
      * @param imgType
-     * @param id
      * @return
      * */
-    public IMessage uploadHeadAvatar(String imgFile, String imgType, String id, FilePathEnum type){
+    @Override
+    public IMessage uploadHeadAvatar(String imgFile, String imgType){
         try {
             String path = environment.getProperty("spring.headImgPath")+"/";//#头像图片路径
             String staticPath = environment.getProperty("spring.staticHeadImg")+"/";
@@ -317,7 +316,11 @@ public class UserService implements IUserService {
             String staticFullPath = "";
             Message message = new Message();
             staticFullPath = staticPath+name+imgType;
-            User user = userDAO.findUserByUserNumber(id);
+            User curUser = getCurrentUser();
+            if(curUser == null){
+                return new Message(false,"请登录后操作");
+            }
+            User user = userDAO.findUserByUserNumber(getCurrentUser().getUserNumber());
             if(null == user){
                 return new Message(false,"用户已不存在");
             }
@@ -325,12 +328,12 @@ public class UserService implements IUserService {
             if (flag) {
                 if (ParamUtils.allNotNull(user.getHeadAvatar())) {//更换头像前需将之前的头像删除
                     if (FileUtils.deleteImg(path, user.getHeadAvatar().replaceAll(staticPath, ""))) {
-                        userDAO.updateUserHead(staticFullPath, id);//删除成功，更新数据库
+                        userDAO.updateUserHead(staticFullPath, getCurrentUser().getUserNumber());//删除成功，更新数据库
                     } else {
                         return new Message(false, "删除原头像失败");
                     }
                 } else {
-                    userDAO.updateUserHead(staticFullPath, id);
+                    userDAO.updateUserHead(staticFullPath, getCurrentUser().getUserNumber());
                 }
                 message.setMsg("上传成功");
                 message.setSuccess(true);

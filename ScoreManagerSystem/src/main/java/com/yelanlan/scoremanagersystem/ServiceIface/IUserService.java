@@ -74,4 +74,12 @@ public interface IUserService {
      * @return
      * */
     public IMessage updateUser(Map<String,String> map);
+
+    /**
+     * 上传头像
+     * @param imgFile
+     * @param imgType
+     * @return
+     * */
+    public IMessage uploadHeadAvatar(String imgFile, String imgType);
 }

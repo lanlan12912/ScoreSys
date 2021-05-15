@@ -11,6 +11,9 @@ import moment from 'moment'
 const viewConfig = require('../static/view.config.json')
 import Viewer from 'v-viewer'
 import 'viewerjs/dist/viewer.css'
+import 'babel-polyfill';
+
+
 Vue.use(Viewer)
 Viewer.setDefaults({
   Options: { 

@@ -3,7 +3,7 @@
         <Col span="16">
             <div class="myScore">
                 <Col span="6">
-                    <img src="../../images/nodata1.jpg" class="headAvatar"/>
+                    <img :src="currentUser.headAvatar == null||currentUser.headAvatar==''?head:currentUser.headAvatar" class="headAvatar"/>
                 </Col>
                 <Col span="10">
                     <div  class="userInfo">
@@ -71,13 +71,19 @@
                 </div>
             </div>
         </Col>
+       
     </div>
 </template>
 <script>
+
 export default {
     name:'scoreView',
+    components:{
+        
+    },
     data(){
         return{
+            head:require('../../images/head.png'),
             userList:[
                 {
                     departName:'计173-1',
@@ -231,6 +237,12 @@ export default {
                 pirseAct:'',
             },
             partUsers:[],
+            
+        }
+    },
+    computed:{
+        currentUser(){
+            return this.$store.getters.getUser;
         }
     },
     mounted(){
@@ -275,7 +287,6 @@ export default {
                 }
             ).catch(err=>{this.$Message.error("请求异常")})
         },
-        
     }
 }
 </script>

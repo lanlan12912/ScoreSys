@@ -120,4 +120,24 @@ public class UserInfoController {
             return new Message(false,"系统异常");
         }
     }
+    
+    @RequestMapping("/uploadHeadAvatar")
+    public IMessage uploadHeadAvatar(@RequestBody Map<String,String> map){
+        if (!ParamUtils.allNotNull(map.get("imgFile"))){
+            return new Message(false,"参数异常");
+        }
+        User user = userService.getCurrentUser();
+        if(user == null){
+            return new Message(false,"请登录后在操作");
+        }
+        String imgFile = map.get("imgFile");
+        String imgType = ".png";
+        if (imgFile.substring(5, 14).equals("image/png")) {
+            imgType = ".png";
+        }
+        if (imgFile.substring(5, 15).equals("image/jpeg") || imgFile.substring(5, 14).equals("image/jpg")) {
+            imgType = ".jpg";
+        }
+        return userService.uploadHeadAvatar(imgFile,imgType);
+    }
 }

@@ -8,10 +8,16 @@
             <Icon @click.native="collapsedSider" :class="rotateIcon" class="colseIcon"  type="md-menu" size="24"></Icon>
           </Col>
           <Col span="5" class="rightHead">
-            <Avatar icon="ios-person" size="large" :src="headAvatar" class="headAvatar" />
-            <span class="name">{{currentUser.userRank=='STUDENT'?'普通学生':(currentUser.userRank=='TEACHER'?'老师':(currentUser.userRank=='ADMIN'?'管理员':'学生干部'))}}:</span>
-            <span class="name">{{currentUser.userName}}</span>
-            <span  @click="loginOut" class="extSpan"><Icon type="md-power" />退出</span>
+            <Row>
+              <Col span="6"><img :src="this.currentUser.headAvatar==null||this.currentUser.headAvatar==''?head:this.currentUser.headAvatar" class="headAvatar" @click="uploadHead"/></Col>
+              <Col span="12">
+                 <span class="name">{{currentUser.userRank=='STUDENT'?'普通学生':(currentUser.userRank=='TEACHER'?'老师':(currentUser.userRank=='ADMIN'?'管理员':'学生干部'))}}
+                   :{{currentUser.userName}}</span>
+              </Col>
+              <Col span="6">
+                <span  @click="loginOut" class="extSpan"><Icon type="md-power" />退出</span>
+              </Col>
+            </Row>
           </Col>
         </Row>
       </Header>
@@ -38,25 +44,42 @@
           <div id="contentView" class="content-view">
             <router-view></router-view>
           </div>
+          
         </Content>
       </Layout>
     </Layout>
+     <myUpload
+      ref="myUpload"
+      v-show="modal"  
+      @crop-success="cropSuccess" 
+      v-model="modal" 
+      :width="200" 
+      :height="200" 
+      img-format="png" 
+      langType='zh'
+      :noRotate='false'
+      url=""></myUpload>
   </div>
 </template>
 <script>
 import '../less/home.less'
+import 'babel-polyfill'; // es6 shim
+import myUpload from "vue-image-crop-upload/upload-2.vue";
 import TagPage from './common/tag-page.vue'
 export default {
   name:"Home",
   components:{
-    TagPage
+    TagPage,
+    myUpload
   },
   data(){
     return{
+      head:require('../images/head.png'),
       isCollapsed:false,
-      headAvatar: require("../images/loginbackgroud.jpg"),
       currentUser:'',
       menuList:[],
+      modal:false,
+      imgDataUrl:'',
     }
   },
   watch:{
@@ -66,6 +89,11 @@ export default {
         if(newval.path == '/home') return;
         this.$store.commit("addTag",this.$router.currentRoute);
       }   
+    }
+  },
+  computed:{
+    headAvatar(){
+      return ;
     }
   },
   mounted(){
@@ -137,7 +165,37 @@ export default {
           }
         }
       ).catch(err => {this.$Message.error("请求异常")})
-    }
+    },
+    cropSuccess(imgDataUrl, field) {
+        //剪裁成功
+        this.imgDataUrl = imgDataUrl;
+        let that = this;
+        if (that.imgDataUrl == null || that.imgDataUrl == "") {
+          this.$Message.error("你还没有选择图片");
+          return;
+        }
+        let param = {
+            imgFile: imgDataUrl,
+        };
+        this.$http.post("/uploadHeadAvatar",param).then(
+            res => {
+              if (res.success) {
+                this.$nextTick(()=>{
+                  this.currentUser.headAvatar = res.data
+                });
+                this.$refs.myUpload.reset();
+                this.$refs.myUpload.setStep(1);
+                this.$Message.success(res.msg);
+              } else {
+                  this.$Message.error(res.msg);
+              }
+            }
+        ).catch(err=> {this.$Message.error("请求异常")});
+    },
+    uploadHead(){
+      this.modal = true;
+    },
+    
   }
 }
 </script>
