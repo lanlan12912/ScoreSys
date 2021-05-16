@@ -4,16 +4,11 @@ import com.yelanlan.scoremanagersystem.DAO.ActivityDAO;
 import com.yelanlan.scoremanagersystem.DAO.DepartmentDAO;
 import com.yelanlan.scoremanagersystem.DAO.ParticipateDAO;
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
-import com.yelanlan.scoremanagersystem.Enum.ActRankEnum;
-import com.yelanlan.scoremanagersystem.Enum.ActStateEnum;
-import com.yelanlan.scoremanagersystem.Enum.PartInEnum;
+import com.yelanlan.scoremanagersystem.Enum.*;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Activity;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
-import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.ActPartDetailDTO;
-import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.CertInfoDTO;
-import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.ScoreInfoDTO;
-import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.UserScoreDTO;
+import com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.*;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Department;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.ParticipateInfo;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
@@ -247,7 +242,11 @@ public class ParticipateService implements IParticipateService {
                             obj.getPartInState(),obj.getMeasureScore(),obj.getCertImg());
                     User user = userDAO.findUserByUserNumber(obj.getUserNumber());
                     dto.setActRank(ActRankEnum.valueOf(obj.getActRank()).getName());//转换活动等级
-                    dto.setPartInState(PartInEnum.valueOf(obj.getPartInState()).getName());//转换获奖等级
+                    if(ActTypeEnum.valueOf(activity.getActType()) == ActTypeEnum.ACT){//活动转换
+                        dto.setPartInState(PartInEnum.valueOf(obj.getPartInState()).getName());//转换获奖等级
+                    }else {//职务转换
+                        dto.setPartInState(DutyScoreEnum.valueOf(obj.getPartInState()).getName());
+                    }
                     dto.setUserName(user.getUserName());
                     Department depart = departmentDAO.findDepartById(user.getDepartmentId());
                     dto.setDepartName(depart.getDepartName());
@@ -276,30 +275,48 @@ public class ParticipateService implements IParticipateService {
     public IMessage passCert(String partId,ActStateEnum certState){
         try {
             ParticipateInfo participateInfo = participateDAO.findAllById(partId);
+            Activity activity = activityDAO.findAllById(participateInfo.getActId());
             if(participateInfo == null){
                 return new Message(false,"参与记录已经不存在");
             }
             double score =0;
             if(certState == ActStateEnum.PASS){
-                switch (PartInEnum.valueOf(participateInfo.getPartInState())){
-                    case PARTINED:
-                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPartScore();
-                        break;
-                    case TPRISE:
-                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore3();
-                        break;
-                    case SPRISE:
-                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore2();
-                        break;
-                    case OPRISE:
-                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getoPriseScore();
-                        break;
-                    case FPRISE:
-                        score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore1();
-                        break;
-                    default:
-                        break;
+                if(ActTypeEnum.valueOf(activity.getActType()) == ActTypeEnum.ACT){
+                    switch (PartInEnum.valueOf(participateInfo.getPartInState())){
+                        case PARTINED:
+                            score = ActRankEnum.valueOf(participateInfo.getActRank()).getPartScore();
+                            break;
+                        case TPRISE:
+                            score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore3();
+                            break;
+                        case SPRISE:
+                            score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore2();
+                            break;
+                        case OPRISE:
+                            score = ActRankEnum.valueOf(participateInfo.getActRank()).getoPriseScore();
+                            break;
+                        case FPRISE:
+                            score = ActRankEnum.valueOf(participateInfo.getActRank()).getPriseScore1();
+                            break;
+                        default:
+                            break;
+                    }
+                }else {
+                    switch (ActRankEnum.valueOf(activity.getActRank())) {
+                        case CLASS_LEVEL:
+                            score = DutyScoreEnum.valueOf(participateInfo.getPartInState()).getClaScore();
+                            break;
+                        case SCHOOL_LEVEL:
+                            score = DutyScoreEnum.valueOf(participateInfo.getPartInState()).getsScore();
+                            break;
+                        case COLLEGE_LEVEL:
+                            score = DutyScoreEnum.valueOf(participateInfo.getPartInState()).getColScore();
+                            break;
+                        default:
+                            break;
+                    }
                 }
+
             }
             participateDAO.addPartScore(score,certState.toString(),partId);
             return new Message(true,"操作成功");

@@ -71,7 +71,7 @@ export default {
                 {
                     title:'用户名',
                     key:'userName',
-                    width:'100',
+                    width:'80',
                     tooltip:true,
                 },
                 {
@@ -83,7 +83,7 @@ export default {
                 {
                     title:'活动名称',
                     key:'actName',
-                    width:'150',
+                    width:'170',
                     tooltip:true,
                 },
                 {
