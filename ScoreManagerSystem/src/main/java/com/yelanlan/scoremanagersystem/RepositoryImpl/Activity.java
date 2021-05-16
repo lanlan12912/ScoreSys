@@ -17,6 +17,8 @@ public class Activity implements IActivity, Serializable {
     @Id
     @Column(name = "id")
     private String id;//活动id，主键
+    @Column(name = "act_type")
+    private String actType;//活动类型：活动类ACT，职务类DUTY
     @Column(name = "act_name")
     private String actName;//活动名称
     @Column(name = "act_desc")
@@ -96,6 +98,16 @@ public class Activity implements IActivity, Serializable {
     @Override
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String getActType() {
+        return actType;
+    }
+
+    @Override
+    public void setActType(String actType) {
+        this.actType = actType;
     }
 
     @Override

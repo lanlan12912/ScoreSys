@@ -51,8 +51,7 @@ public class ActivityController {
         if(null == user){
             return new Message(false,"请登陆后操作");
         }
-        if(!ParamUtils.allNotNull(map.get("actName"),map.get("actRank"),map.get("actHost"),
-                map.get("startDate"),map.get("endDate"),map.get("actSite"))){
+        if(!ParamUtils.allNotNull(map.get("actName"),map.get("actRank"),map.get("startDate"),map.get("endDate"))){
             return new Message(false,"信息填写不完整");
         }
         if(!ParamUtils.allNotNull(map.get("id"))){

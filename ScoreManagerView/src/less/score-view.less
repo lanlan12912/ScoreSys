@@ -1,0 +1,103 @@
+.scoreView{
+    margin: 5px 10px ;
+    .myScore{
+        margin: 5px 10px 5px 0px;
+        width: 98%;
+        height: 200px;
+        background: #fff;
+        padding: 10px;
+        .headAvatar{
+            padding: 10px;
+            border-radius: 50%;
+            width: 180px;
+            height: 180px;
+        }
+        .userInfo{
+            line-height:30px;
+            font-size: 14px;
+            text-align: left;
+            padding: 20px 10px;
+            p{
+                white-space:nowrap;
+                text-overflow:ellipsis;
+                overflow: hidden;
+            }
+        }
+    }
+    .scoreDetail{
+        margin: 10px 10px 5px 0px;
+        width: 98%;
+        height: 355px;
+        background: #fff;
+        .table{
+            width: 100%;
+        }
+    }
+    .rightBody{
+        margin: 5px 15px 5px 0px;
+        height: 566px;
+        width: 100%;
+        background: #fff;
+        .champion{
+            padding: 10px;
+            background-image: linear-gradient(120deg, #c16ef8 0%, #8eb1f1 100%);
+            height: 25%;
+            .title{
+                text-align: center;
+                .departName{
+                    cursor: pointer;
+                    bordeR-bottom:2px solid rgb(34, 35, 36);
+                }
+            }
+            .first{
+                img{
+                    border-radius: 50%;
+                    height: 45px;
+                    width: 45px;
+                }
+                .num{
+                    font-size: 16px;
+                }
+            }
+            .second{
+                margin-top: 20px;
+                .num{
+                    font-size: 10px;
+                }
+                img{
+                    border-radius: 50%;
+                    height: 35px;
+                    width: 35px; 
+                }
+            }
+        }
+        .sortList{
+            width: 100%;
+            overflow: auto;
+            height: 75%;
+            .rankRow{
+                padding: 10px 5px 5px ;
+                text-align: center; 
+                background-image: linear-gradient(120deg, #c69feb 0%, #89afd4 100%);
+            }
+            .firstRank{
+                background-image: linear-gradient(120deg, #eb7b48 0%, #faba66 100%);
+            }
+            .secondRank{
+                background-image: linear-gradient(120deg, #faba66 0%, #eed47f 100%);
+            }
+            .thirdRank{
+                background-image: linear-gradient(120deg, #eed47f 0%, #f4f5f7 100%);
+            }
+            .othorRank{
+                background: #fff;
+            }
+            img{
+                border-radius: 50%;
+                height: 25px;
+                width: 25px;
+            }
+        }
+      
+    }
+}

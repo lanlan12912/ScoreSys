@@ -3,9 +3,7 @@ package com.yelanlan.scoremanagersystem.ServiceImpl;
 import com.yelanlan.scoremanagersystem.DAO.ActivityDAO;
 import com.yelanlan.scoremanagersystem.DAO.ParticipateDAO;
 import com.yelanlan.scoremanagersystem.DAO.UserDAO;
-import com.yelanlan.scoremanagersystem.Enum.ActRankEnum;
-import com.yelanlan.scoremanagersystem.Enum.ActStateEnum;
-import com.yelanlan.scoremanagersystem.Enum.PartInEnum;
+import com.yelanlan.scoremanagersystem.Enum.*;
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Activity;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
@@ -65,6 +63,8 @@ public class ActivityService implements IActivityService {
             }else {//进行中
                 activity.setActState(ActStateEnum.ONGOING.toString());
             }
+            //设置活动类型
+            activity.setActType(ActTypeEnum.valueOf(map.get("actType")).toString());
             //初始化删除字段为未删除
             activity.setDelFlag(0);
             //初始化审核状态为：审核中
@@ -134,8 +134,10 @@ public class ActivityService implements IActivityService {
                 @Override
                 public Predicate toPredicate(Root<Activity> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                     List<Predicate> predicateList = new ArrayList<>();
-                    //筛选未删除的活动信息
-                    predicateList.add(criteriaBuilder.equal(root.get("delFlag"),0));
+
+                    if(ParamUtils.allNotNull(map.get("actType"))){
+                        predicateList.add(criteriaBuilder.equal(root.get("actType"),String.valueOf(map.get("actType"))));
+                    }
                     if(ParamUtils.allNotNull(map.get("actName"))){
                         predicateList.add(criteriaBuilder.like(root.get("actName"),String.valueOf(map.get("actName"))));
                     }
@@ -167,6 +169,8 @@ public class ActivityService implements IActivityService {
                         case 0://全部活动
                             //审核状态为通过
                             predicateList.add(criteriaBuilder.equal(root.get("actJudge"),ActStateEnum.PASS.toString()));
+                            //筛选未删除的活动信息
+                            predicateList.add(criteriaBuilder.equal(root.get("delFlag"),0));
                             break;
                         case 1://我参与的
                             //获取用户的活动参与信息
@@ -185,6 +189,8 @@ public class ActivityService implements IActivityService {
                             break;
                         case 2://我发布的
                             predicateList.add(criteriaBuilder.equal(root.get("crtUser"),currentUser.getUserNumber()));
+                            //筛选未删除的活动信息
+                            predicateList.add(criteriaBuilder.equal(root.get("delFlag"),0));
                             break;
                         default:
                             break;
@@ -371,25 +377,49 @@ public class ActivityService implements IActivityService {
                 activity.setActState(ActStateEnum.ONGOING.toString());
             }
             List<MScoreDTO> scoreDTOS = new ArrayList<>();
-            for (PartInEnum o : PartInEnum.values()) {
-                switch (o){
-                    case FPRISE://一等奖
-                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore1()));
-                        break;
-                    case SPRISE://二等奖
-                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore2()));
-                        break;
-                    case TPRISE://三等奖
-                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore3()));
-                        break;
-                    case OPRISE://其他获奖
-                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getoPriseScore()));
-                        break;
-                    case PARTINED://参与
-                        scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPartScore()));
-                        break;
-                    default:
-                        break;
+            if(ActTypeEnum.valueOf(activity.getActType()) == ActTypeEnum.ACT){
+                for (PartInEnum o : PartInEnum.values()) {
+                    switch (o){
+                        case FPRISE://一等奖
+                            scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore1()));
+                            break;
+                        case SPRISE://二等奖
+                            scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore2()));
+                            break;
+                        case TPRISE://三等奖
+                            scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPriseScore3()));
+                            break;
+                        case OPRISE://其他获奖
+                            scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getoPriseScore()));
+                            break;
+                        case PARTINED://参与
+                            scoreDTOS.add(new MScoreDTO(rankEnum.getName(),o.toString(),o.getName(),rankEnum.getPartScore()));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }else {
+                for (DutyScoreEnum scoreEnum:DutyScoreEnum.values()){
+                    switch (rankEnum){
+                        case CLASS_LEVEL:
+                            if(scoreEnum.getClaScore()>0){
+                                scoreDTOS.add(new MScoreDTO(rankEnum.getName(),scoreEnum.toString(),scoreEnum.getName(),scoreEnum.getClaScore()));
+                            }
+                            break;
+                        case SCHOOL_LEVEL:
+                            if(scoreEnum.getsScore()>0){
+                                scoreDTOS.add(new MScoreDTO(rankEnum.getName(),scoreEnum.toString(),scoreEnum.getName(),scoreEnum.getsScore()));
+                            }
+                            break;
+                        case COLLEGE_LEVEL:
+                            if(scoreEnum.getColScore()>0){
+                                scoreDTOS.add(new MScoreDTO(rankEnum.getName(),scoreEnum.toString(),scoreEnum.getName(),scoreEnum.getColScore()));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             //分数降序

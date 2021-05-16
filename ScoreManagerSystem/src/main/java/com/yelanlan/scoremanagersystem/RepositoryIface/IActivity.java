@@ -6,6 +6,8 @@ import java.util.Date;
 public interface IActivity {
     public String getId();
     public void setId(String id);
+    public String getActType();
+    public void setActType(String actType);
     public String getActName();
     public void setActName(String actName);
     public String getActDesc();

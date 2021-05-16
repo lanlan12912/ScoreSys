@@ -35,9 +35,9 @@
                 v-for="(item,index) in actList"  :key="item.id" class="actCard" :title="item.actName"
                 >
                     <div class="content" >
-                        <p :title="item.actHost">主办方：{{item.actHost}}</p>
-                        <p :title="item.actSite">活动地点：{{item.actSite}}</p>
-                        <p :title="item.actDesc" >活动描述：{{item.actDesc}}</p>
+                        <p :title="item.actHost">{{item.actType=='ACT'?'主办方':'负责人'}}：{{item.actHost}}</p>
+                        <p :title="item.actSite">{{item.actType=='ACT'?'活动地点':'办公地点'}}：{{item.actSite}}</p>
+                        <p :title="item.actDesc" >详细描述：{{item.actDesc}}</p>
                         <p class="date">开始时间：{{item.startDate}}</p>
                         <p class="date">结束时间：{{item.endDate}}</p>
                     </div>

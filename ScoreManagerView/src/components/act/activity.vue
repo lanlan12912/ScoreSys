@@ -8,14 +8,16 @@
                 <FormItem label='主办方' prop="actHost" >
                     <Input v-model="actFilter.actHost" type="text"></Input>
                 </FormItem>
-                <!-- <FormItem label="活动状态" prop="actState">
-                     <Select v-model="actFilter.actState" readonly style="text-align:left">
-                        <Option v-for="item in actStates" :value="item.code" :key="item.code">{{item.name}}</Option>
-                    </Select>
-                </FormItem> -->
                 <FormItem label="活动等级" prop="actRank" >
                     <Select v-model="actFilter.actRank"  readonly style="text-align:left">
                         <Option v-for="item in actRanks" :value="item.code" :key="item.code">{{item.name}}</Option>
+                    </Select>
+                </FormItem>
+                <FormItem prop="actType" :label-width="80" label='类型'>
+                    <Select v-model="actFilter.actType" readonly @on-change="changeType"
+                        style="titem.codeext-align:left" :disabled="modifyFlag">
+                        <Option value="ACT" key="ACT">活动类</Option>
+                        <Option value="DUTY" key="DUTY">职务类</Option>
                     </Select>
                 </FormItem>
                 <FormItem :label-width='30'>
@@ -35,9 +37,9 @@
                 :class="item.actState == 'NOTSTART'?'notStart':(item.actState == 'ONGOING'?'onGoing':'ended')"
                 >
                     <div class="content" >
-                        <p :title="item.actHost">主办方：{{item.actHost}}</p>
-                        <p :title="item.actSite">活动地点：{{item.actSite}}</p>
-                        <p :title="item.actDesc" >活动描述：{{item.actDesc}}</p>
+                        <p :title="item.actHost">{{item.actType=='ACT'?'主办方':'负责人'}}：{{item.actHost}}</p>
+                        <p :title="item.actSite">{{item.actType=='ACT'?'活动地点':'办公地点'}}：{{item.actSite}}</p>
+                        <p :title="item.actDesc" >详细描述：{{item.actDesc}}</p>
                         <p class="date">开始时间：{{item.startDate}}</p>
                         <p class="date">结束时间：{{item.endDate}}</p>
                     </div>
@@ -57,6 +59,7 @@ export default {
         return {
             actRanks:[],
             actFilter:{
+                actType:'',
                 actName:'',
                 actHost:'',
                 actState:'',
@@ -112,6 +115,7 @@ export default {
             let param = {
                 start:index == undefined?this.current:index,
                 limit:this.limit,
+                actType:this.actFilter.actType,
                 actName:this.actFilter.actName,
                 actHost:this.actFilter.actHost,
                 actState:this.actFilter.actState,

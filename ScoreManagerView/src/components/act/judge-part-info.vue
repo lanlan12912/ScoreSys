@@ -2,10 +2,10 @@
     <div>
         <Row span ='2'>
             <Form  ref="partFilter" v-model="partFilter" :label-width="60" class="filter">
-                <FormItem label='参与人账号' :label-width='80' prop="userNumber">
+                <FormItem label='参与人账号' :label-width='80' style="width:250px" prop="userNumber">
                     <Input v-model="partFilter.userNumber" type="text"></Input>
                 </FormItem>
-                <FormItem label='用户院系' prop="departIds">
+                <FormItem label='用户院系' prop="departIds" style="width:250px">
                     <Dropdown ref="depart" trigger="click" placement="bottom-start" style="width:100%" >
                         <Input v-model="partFilter.departNames" readonly />
                         <DropdownMenu slot="list">
@@ -14,7 +14,7 @@
                         </DropdownMenu>
                     </Dropdown>
                 </FormItem>
-                 <FormItem label="审核状态" prop="certState">
+                 <FormItem label="审核状态" prop="certState" style="width:250px">
                     <Select  v-model="partFilter.certState" readonly style="text-align:left">
                         <Option v-for="item in certStates" :value="item.code" :key="item.code">{{item.name}}</Option>
                     </Select>
@@ -218,7 +218,9 @@ export default {
             this.$http.post("/passCert",param).then(
                 res =>{
                     if(res.success){
-                        this.getPartList(this.current);
+                        this.$nextTick(()=>{
+                            this.getPartList(this.current);
+                        })
                         this.$Message.success(res.msg);
                     }else{
                         this.$Message.error(res.msg)

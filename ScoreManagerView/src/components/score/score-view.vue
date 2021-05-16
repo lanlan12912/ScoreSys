@@ -36,14 +36,23 @@
         <Col span="8">
             <div class="rightBody">
                 <div class="champion">
-                    <div><h2 class="title">
-                        <!-- <span class="departName">全部</span> -->
-                        
-                        综合测评成绩排行榜</h2>
+                    <div><h2 class="title">综合测评成绩排行榜</h2>
                     </div>
-                    <Col span="8" class="second"><p><font size="4" color="rgb(241, 81, 81)">2</font></p><img  src="../../images/nodata1.jpg"/><p>叶兰兰</p></Col>
-                    <Col span="8" class="first"><p><font size="5" color="rgb(241, 81, 81)">1</font></p><img src="../../images/nodata1.jpg"/><p>叶兰兰</p></Col>
-                    <Col span="8" class="second"><p><font size="4" color="rgb(241, 81, 81)">3</font></p><img src="../../images/nodata1.jpg"/><p>叶兰兰</p></Col>
+                    <Col span="8" class="second">
+                        <p><font size="4" color="rgb(241, 81, 81)">2</font></p>
+                        <img :src="partUsers.length>=2&&partUsers[1].headAvatar!=null&&partUsers[1].headAvatar!=''?partUsers[1].headAvatar:head"/>
+                        <p v-if="partUsers.length>=2">{{partUsers[1].userName}}</p>
+                    </Col>
+                    <Col span="8" class="first">
+                        <p><font size="5" color="rgb(241, 81, 81)">1</font></p>
+                        <img :src="partUsers.length>=1&&partUsers[0].headAvatar!=null&&partUsers[0].headAvatar!=''?partUsers[0].headAvatar:head"/>
+                        <p v-if="partUsers.length>=1">{{partUsers[0].userName}}</p>
+                    </Col>
+                    <Col span="8" class="second">
+                        <p><font size="4" color="rgb(241, 81, 81)">3</font></p>
+                        <img :src="partUsers.length>=3&&partUsers[2].headAvatar!=null&&partUsers[2].headAvatar!=''?partUsers[2].headAvatar:head"/>
+                        <p v-if="partUsers.length>=3">{{partUsers[2].userName}}</p>
+                    </Col>
                 </div>
                 <div class="sortList">
                     <Row class="rankRow">
@@ -62,7 +71,7 @@
                             <p v-else>{{index+1}}</p>
                         </Col>
                         <Col span="5">
-                            <img src="../../images/nodata1.jpg"/>
+                            <img :src="item.headAvatar==null||item.headAvatar==''?head:item.headAvatar"/>
                         </Col>
                         <Col span="5">{{item.departName}}</Col>
                         <Col span="5">{{item.userName}}</Col>
@@ -75,7 +84,7 @@
     </div>
 </template>
 <script>
-
+import '../../less/score-view.less'
 export default {
     name:'scoreView',
     components:{
@@ -170,25 +179,25 @@ export default {
                     title:'活动名称',
                     key:'actName',
                     ellipsis:'true',
-                    width:'100',
+                    width:'120',
                     tooltip:true,
                 },
                 {
                     title:'活动等级',
                     key:'actRank',
-                    width:'100',
+                    width:'90',
                     tooltip:true,
                 },
                 {
                     title:'活动时间',
                     key:'actDate',
-                    width:'100',
+                    width:'130',
                     tooltip:true,
                 },
                 {
                     title:'获奖级别',
                     key:'partInState',
-                    width:'100',
+                    width:'110',
                     tooltip:true,
                 },
                 {
@@ -213,13 +222,13 @@ export default {
                 {
                     title:'得分',
                     key:'score',
-                    width:'100',
+                    width:'70',
                     tooltip:true,
                 },
                 {
                     title:'审核状态',
                     key:'certState',
-                    width:'100',
+                    width:'90',
                     tooltip:true,
                 },
             ],
@@ -236,8 +245,7 @@ export default {
                 partEdAct:'',
                 pirseAct:'',
             },
-            partUsers:[],
-            
+            partUsers:[],           
         }
     },
     computed:{
@@ -291,107 +299,4 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.scoreView{
-    margin: 5px 10px ;
-    .myScore{
-        margin: 5px 10px 5px 0px;
-        width: 98%;
-        height: 200px;
-        background: #fff;
-        padding: 10px;
-        .headAvatar{
-            padding: 10px;
-            border-radius: 50%;
-            width: 180px;
-            height: 180px;
-        }
-        .userInfo{
-            line-height:30px;
-            font-size: 14px;
-            text-align: left;
-            padding: 20px 10px;
-            p{
-                white-space:nowrap;
-                text-overflow:ellipsis;
-                overflow: hidden;
-            }
-        }
-    }
-    .scoreDetail{
-        margin: 10px 10px 5px 0px;
-        width: 98%;
-        height: 355px;
-        background: #fff;
-        .table{
-            width: 100%;
-        }
-    }
-    .rightBody{
-        margin: 5px 15px 5px 0px;
-        height: 566px;
-        width: 100%;
-        background: #fff;
-        .champion{
-            padding: 10px;
-            background-image: linear-gradient(120deg, #c16ef8 0%, #8eb1f1 100%);
-            height: 25%;
-            .title{
-                text-align: center;
-                .departName{
-                    cursor: pointer;
-                    bordeR-bottom:2px solid rgb(34, 35, 36);
-                }
-            }
-            .first{
-                img{
-                    border-radius: 50%;
-                    height: 45px;
-                    width: 45px;
-                }
-                .num{
-                    font-size: 16px;
-                }
-            }
-            .second{
-                margin-top: 20px;
-                .num{
-                    font-size: 10px;
-                }
-                img{
-                    border-radius: 50%;
-                    height: 35px;
-                    width: 35px; 
-                }
-            }
-        }
-        .sortList{
-            width: 100%;
-            overflow: auto;
-            height: 75%;
-            .rankRow{
-                padding: 10px 5px 5px ;
-                text-align: center; 
-                background-image: linear-gradient(120deg, #c69feb 0%, #89afd4 100%);
-            }
-            .firstRank{
-                background-image: linear-gradient(120deg, #eb7b48 0%, #faba66 100%);
-            }
-            .secondRank{
-                background-image: linear-gradient(120deg, #faba66 0%, #eed47f 100%);
-            }
-            .thirdRank{
-                background-image: linear-gradient(120deg, #eed47f 0%, #f4f5f7 100%);
-            }
-            .othorRank{
-                background: #fff;
-            }
-            img{
-                border-radius: 50%;
-                height: 25px;
-                width: 25px;
-            }
-        }
-      
-    }
-}
 </style>

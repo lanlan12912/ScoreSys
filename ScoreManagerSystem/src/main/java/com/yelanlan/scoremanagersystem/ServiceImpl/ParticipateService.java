@@ -229,6 +229,9 @@ public class ParticipateService implements IParticipateService {
                                     in.value(s);
                                 }
                                 predicateList.add(in);
+                            }else {
+                                in.value("");
+                                predicateList.add(in);
                             }
                         }
                     }

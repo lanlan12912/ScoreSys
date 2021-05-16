@@ -7,7 +7,7 @@
                         <Row><h2 :title="actInfo.actName">{{actInfo.actName}}</h2></Row>
                         <Row>
                             <Col span="10">
-                                <p><b>获奖得分：</b>
+                                <p><b>{{actInfo.actType=='ACT'?'获奖得分：':'职务得分：'}}</b>
                                     <p v-for="item in scoreList">
                                         <b>
                                             <img src="../../images/11.png" v-if="item.code == 'FPRISE'"/>
@@ -22,18 +22,19 @@
                             </Col>
                             <Col span="14">
                                 <p :title="actInfo.actJudge=='PASS'?'已通过':(actInfo.actJudge=='REFUSED'?'被拒绝':'审核中')"><b>申报状态：{{actInfo.actJudge=='PASS'?'已通过':(actInfo.actJudge=='REFUSED'?'被拒绝':'审核中')}}</b></p>
-                                <p :title="actInfo.actRank"><b>活动级别：{{actInfo.actRank}}</b></p>
-                                <p :title="actInfo.actHost"><b>主办方：{{actInfo.actHost}}</b></p>
+                                <p :title="actInfo.actRank"><b>{{actInfo.actType=='ACT'?'活动级别：':'团体等级：'}}{{actInfo.actRank}}</b></p>
+                                <p :title="actInfo.actHost"><b>{{actInfo.actType=='ACT'?'主办方':'负责人'}}：{{actInfo.actHost}}</b></p>
                                 <p :title="actInfo.crtUser"><b>发起人：{{actInfo.crtUser}}</b></p>
-                                <p :title="actInfo.actSite"><b>活动地点：{{actInfo.actSite}}</b></p>
+                                <p :title="actInfo.actSite"><b>{{actInfo.actType=='ACT'?'活动地点':'办公地点'}}：{{actInfo.actSite}}</b></p>
                                 <p :title="actInfo.startDate"><b>开始时间：{{actInfo.startDate}}</b></p>
                                 <p :title="actInfo.endDate"><b>结束时间：{{actInfo.endDate}}</b></p>
                             </Col>
                         </Row>
                         <Row>
                             <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" @click="compeleteImg()">完善材料</Button>
-                            <Button class="btns" type="success"  @click="signAct" :disabled="actInfo.actState!='NOTSTART'||(actInfo.actJudge!='PASS'||(partInfo.partInState!=''&&partInfo.partInState!=null))">我要报名</Button>
-                            <Button class="btns" type="success" @click="priseCert" :disabled="actInfo.actState!='ENDED'||partInfo.certState == 'PASS'">已参与/已获奖</Button>
+                            <Button class="btns" type="success"  @click="signAct" :disabled="!(actInfo.actState=='NOTSTART'&&(actInfo.actJudge=='PASS'&&(partInfo.partInState==''||partInfo.partInState==null)))">我要报名</Button>
+                            <Button class="btns" type="success" v-if="actInfo.actType=='ACT'" @click="priseCert" :disabled="actInfo.actState!='ENDED'||partInfo.certState == 'PASS'">已参与/已获奖</Button>
+                            <Button class="btns" type="success" v-if="actInfo.actType=='DUTY'" @click="priseCert" :disabled="actInfo.actState!='ENDED'||partInfo.certState == 'PASS'">上传职务证明</Button>
                             <Button class="btns" type="success" :disabled="actInfo.actJudge!='INJUDGE'" v-if="getCurrentUser.userRank == 'ADMIN'||getCurrentUser.userRank == 'TEACHER'" @click="judgeAct('PASS')">通过申报</Button>
                             <Button class="btns" type="warning" :disabled="actInfo.actJudge!='INJUDGE'" v-if="getCurrentUser.userRank == 'ADMIN'||getCurrentUser.userRank == 'TEACHER'" @click="judgeAct('REFUSED')">退回申报</Button>
                             <Button class="btns" type="info" v-if="getCurrentUser.userNumber == actInfo.crtUser" :disabled="actInfo.actJudge!='PASS'" @click="toJudgePartInfo">审核材料</Button>
@@ -80,7 +81,7 @@
                         <p v-else>{{index+1}}</p>
                     </Col>
                     <Col span="5">
-                        <img src="../../images/nodata1.jpg"/>
+                        <img :src="item.headAvatar==null||item.headAvatar==''?head:item.headAvatar"/>
                     </Col>
                     <Col span="5">{{item.departName}}</Col>
                     <Col span="5">{{item.userName}}</Col>
@@ -130,13 +131,13 @@
         </Modal>
         <Modal
             v-model="modal"
-            title="参与/获奖上报"
+            :title="actInfo.actType == 'ACT'?'职务证明':'参与/获奖上报'"
             @on-ok="ok1"
             @on-cancel="cancle1"
             :width="400">
              <Form ref="partInfo" :model="partInfo" :rules="certRules">
                 <Row>
-                    <FormItem prop="partInState" :label-width="80" label='获奖级别'>
+                    <FormItem prop="partInState" :label-width="80" :label="actInfo.actType=='ACT'?'获奖等级':'职务等级'">
                         <Select v-model="partInfo.partInState"  readonly style="text-align:left">
                             <Option v-for="item in scoreList" :value="item.code" :key="item.code">{{item.name}}(+{{item.value}})</Option>
                         </Select>
@@ -164,7 +165,7 @@
                             <div style="width: 58px;height:58px;line-height: 58px;">
                                 <Icon type="ios-camera" size="20"></Icon>
                             </div>
-                    </Upload>
+                        </Upload>
                     </FormItem>
                 </Row>
             </Form>
@@ -172,10 +173,12 @@
     </div>
 </template>
 <script>
+import '../../less/activity-detail.less'
 export default {
     name:'actDetail',
     data(){
         return{
+            head:require('../../images/head.png'),
             scoreList:[],
             modal:false,
             flag:false,
@@ -186,7 +189,8 @@ export default {
                 actHost:'',
                 actDesc:'',
                 crtUser:'',
-                actRank:''
+                actRank:'',
+                actType:''
             },
             partInfo:{
                 partInState:'',
@@ -351,7 +355,6 @@ export default {
             if (!check) {
                 this.$Notice.warning({title: '最多可上传 5 张图片'});
             }
-            let that = this;
             this.getBase64(file).then(
                 res =>{
                     this.$nextTick(()=>{
@@ -424,19 +427,17 @@ export default {
             this.modal = true;
         },
         handleBeforeUpload1(file){
-            const check = this.actImgs.length < 5;
-            if (!check) {
-                this.$Notice.warning({title: '最多可上传 5 张图片'});
-            }
-            let that = this;
             this.getBase64(file).then(
                 res =>{
                     this.$nextTick(()=>{
                         this.partInfo.certImg = res;
                     })
+                    return true;
                 }
-            ).catch(err => {this.$Message.error(err)});
-            return check;
+            ).catch(err => {
+                this.$Message.error(err)
+                return false
+            });
         },
         ok1(){
             if(this.partInfo.certImg==''){
@@ -509,120 +510,4 @@ export default {
 }
 </script>
 <style lang="less" scoped>
-.actDetail{
-    margin: 5px;
-    .actInfo{
-        padding: 10px;
-        width:98%;
-        height: 320px;
-        background: #fff;
-        overflow: hidden;
-        text-align: left;
-        h2{
-            margin:0 10px 8px;
-        }
-        p{
-            width: 100%;
-            margin:0 10px 8px;
-            white-space:nowrap;/*只对中文起作用，强制换行*/
-            overflow: hidden; 
-            text-overflow:ellipsis;
-        }
-        img{
-            height: 15px;
-            width: 15px;
-        }
-        .btns{
-            margin: 10px 0px 0px 10px;
-        }
-    }
-    .imgLunBo{
-        padding: 10px;
-        width: 100%;
-        background: #fff;
-        height: 320px;
-        text-align: center;
-        img{
-            height: 280px;
-            width: 300px;
-        }
-    }
-    .actDesc{
-        padding: 10px;
-        width: 100%;
-        height: 236px;
-        background: #fff;
-        margin-top: 10px;
-        overflow-y: auto;
-        text-align: left;
-        p{
-            text-indent: 2em;
-        }
-    }
-}
-    .demo-upload-list{
-        display: inline-block;
-        width: 60px;
-        height: 60px;
-        text-align: center;
-        line-height: 60px;
-        border: 1px solid transparent;
-        border-radius: 4px;
-        overflow: hidden;
-        background: #fff;
-        position: relative;
-        box-shadow: 0 1px 1px rgba(0,0,0,.2);
-        margin-right: 4px;
-    }
-    .demo-upload-list img{
-        width: 100%;
-        height: 100%;
-    }
-    .demo-upload-list-cover{
-        display: none;
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: rgba(0,0,0,.6);
-    }
-    .demo-upload-list:hover .demo-upload-list-cover{
-        display: block;
-    }
-    .demo-upload-list-cover i{
-        color: #fff;
-        font-size: 20px;
-        cursor: pointer;
-        margin: 0 2px;
-    }
-.userRank{
-    width: 100%;
-    height: 566px;
-    margin: 5px 10px;
-    background: #fff;
-    overflow-y: auto;
-    img{
-        border-radius: 50%;
-        height: 25px;
-        width: 25px;
-    }
-    .rankRow{
-        padding: 10px 5px 5px ;
-        text-align: center; 
-        background: rgb(92, 167, 218);
-    }
-    .firstRank{
-        background: rgb(229, 133, 192);
-    }
-    .secondRank{
-        background: rgb(231, 163, 99);
-    }
-    .thirdRank{
-        background: rgb(230, 215, 84);
-    }
-    .othorRank{
-        background: #fff;
-    }
-}
 </style>

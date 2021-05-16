@@ -4,7 +4,8 @@ public enum ActRankEnum {
     NATIONAL_LEVEL("国家级",5,4,3.5,3,0.5),
     PROVINCE_LEVEL("省级",3.5,2.5,2,1,0.4),
     SCHOOL_LEVEL("校级",3,2,1.5,0.8,0.2),
-    COLLEGE_LEVEL("院级",1,0.8,0.6,0.5,0.2)
+    COLLEGE_LEVEL("院级",1,0.8,0.6,0.5,0.2),
+    CLASS_LEVEL("班级",0,0,0,0,0)
     ;
     private final String name;//等级
     private final double priseScore1;//一等奖获奖得分
