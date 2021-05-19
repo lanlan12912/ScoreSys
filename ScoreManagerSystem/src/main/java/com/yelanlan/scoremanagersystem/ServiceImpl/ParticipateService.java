@@ -399,9 +399,10 @@ public class ParticipateService implements IParticipateService {
             //处理详情列表
             List<ActPartDetailDTO> scoreInfoDTOS = new ArrayList<>();
             for(ParticipateInfo info : participateInfos){
+                Activity activity = activityDAO.findAllById(info.getActId());
                 ActPartDetailDTO detailDTO = new ActPartDetailDTO(info.getId(),ActRankEnum.valueOf(info.getActRank()).getName(),
-                        PartInEnum.valueOf(info.getPartInState()).getName(),info.getCertImg(),info.getMeasureScore(),
-                        ActStateEnum.valueOf(info.getCertState()).getName());
+                        ActTypeEnum.valueOf(activity.getActType())==ActTypeEnum.ACT?PartInEnum.valueOf(info.getPartInState()).getName():DutyScoreEnum.valueOf(info.getPartInState()).getName(),
+                        info.getCertImg(),info.getMeasureScore(),ActStateEnum.valueOf(info.getCertState()).getName());
                 Activity act = activityDAO.findAllById(info.getActId());
                 detailDTO.setActName(act.getActName());
                 detailDTO.setActDate(act.getStartDate()+"-"+act.getEndDate());

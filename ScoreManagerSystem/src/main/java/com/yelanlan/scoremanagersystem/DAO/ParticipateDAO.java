@@ -40,7 +40,7 @@ public interface ParticipateDAO extends JpaRepository<ParticipateInfo,String>, J
     @Query("select p from ParticipateInfo p where p.userNumber = ?1 and p.partInState <> ?2")
     List<ParticipateInfo> getUserSignAct(String userNumber,String partInState);
 
-    @Query("select p.userNumber,nullif(sum(p.measureScore),0) as total from ParticipateInfo p group by p.userNumber order by total")
+    @Query("select p.userNumber,nullif(sum(p.measureScore),0) as total from ParticipateInfo p group by p.userNumber order by total desc")
     List<Object[]> getUserRank();
 
     @Query("select nullif(sum(p.measureScore),0) as total from ParticipateInfo p where p.userNumber = ?1 and p.actId in (?2)")
@@ -49,7 +49,7 @@ public interface ParticipateDAO extends JpaRepository<ParticipateInfo,String>, J
     @Query("select p from ParticipateInfo p where p.userNumber = ?1 and p.actId in (?2) and p.partInState <> ?3")
     List<ParticipateInfo> getUserSignAct(String userNumber,List<String> actIds ,String partInState);
 
-    @Query("select p.userNumber,nullif(sum(p.measureScore),0) as total from ParticipateInfo p where p.actId in (?1) group by p.userNumber order by total")
+    @Query("select p.userNumber,nullif(sum(p.measureScore),0) as total from ParticipateInfo p where p.actId in (?1) group by p.userNumber order by total desc")
     List<Object[]> getUserRank(List<String> actIds);
 
     @Query("select new com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.UserScoreDTO(u.userNumber,u.userName,u.headAvatar,d.departName,sum(p.measureScore)) " +

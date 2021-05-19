@@ -23,8 +23,8 @@
                         <p  title="20147852369">总分：<span>{{scoreInfo.totalScore}}</span></p>
                         <p  title="20147852369">总排名：<span>{{scoreInfo.ranking}}</span>&nbsp;&nbsp;&nbsp;&nbsp;名</p>
                         <p  title="20147852369">已报名：<span>{{scoreInfo.signEdAct}}</span>&nbsp;&nbsp;&nbsp;&nbsp;项</p>
-                        <p  title="20147852369">已参与：<span>{{scoreInfo.partEdAct}}</span>&nbsp;&nbsp;&nbsp;&nbsp;项</p>
-                        <p  title="20147852369">获奖：<span>{{scoreInfo.pirseAct}}</span>&nbsp;&nbsp;&nbsp;&nbsp;项</p>
+                        <p  title="20147852369">参与得分活动：<span>{{scoreInfo.partEdAct}}</span>&nbsp;&nbsp;&nbsp;&nbsp;项</p>
+                        <p  title="20147852369">获奖得分活动：<span>{{scoreInfo.pirseAct}}</span>&nbsp;&nbsp;&nbsp;&nbsp;项</p>
                     </div>
                 </Col>
             </div>
