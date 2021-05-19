@@ -248,8 +248,10 @@ public class ParticipateService implements IParticipateService {
                         dto.setPartInState(DutyScoreEnum.valueOf(obj.getPartInState()).getName());
                     }
                     dto.setUserName(user.getUserName());
-                    Department depart = departmentDAO.findDepartById(user.getDepartmentId());
-                    dto.setDepartName(depart.getDepartName());
+                    if(ParamUtils.allNotNull(user.getDepartmentId())){
+                        Department depart = departmentDAO.findDepartById(user.getDepartmentId());
+                        dto.setDepartName(depart.getDepartName());
+                    }
                     Activity act = activityDAO.findAllById(obj.getActId());
                     dto.setActName(act.getActName());
                     dto.setCertState(ActStateEnum.valueOf(obj.getCertState()).getName());//转换审核状态

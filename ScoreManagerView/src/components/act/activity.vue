@@ -14,8 +14,7 @@
                     </Select>
                 </FormItem>
                 <FormItem prop="actType" :label-width="80" label='类型'>
-                    <Select v-model="actFilter.actType" readonly @on-change="changeType"
-                        style="titem.codeext-align:left" :disabled="modifyFlag">
+                    <Select v-model="actFilter.actType" readonly  style="titem.codeext-align:left" >
                         <Option value="ACT" key="ACT">活动类</Option>
                         <Option value="DUTY" key="DUTY">职务类</Option>
                     </Select>

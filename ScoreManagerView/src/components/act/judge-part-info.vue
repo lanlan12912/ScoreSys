@@ -104,7 +104,7 @@ export default {
                 {
                     title:'证明材料',
                     key:'certImg',
-                    width:'125',
+                    width:'110',
                     render:(h,params)=>{
                         return h("viewer",[
                             h("img",{
@@ -128,7 +128,7 @@ export default {
                 {
                     title:'操作',
                     key:'action',
-                    width:'110',
+                    width:'120',
                     render: (h, params) => {
                         let buttons = [];
                         buttons.push(
@@ -138,10 +138,12 @@ export default {
                                         placement: "top-end",
                                     }
                                 },[
-                                h('Icon', {
+                                h('Button', {
                                         props: {
-                                            type:'md-checkmark',
-                                            size:'24'
+                                            shape:'circle',
+                                            icon:'md-checkmark',
+                                            type:"success",
+                                            disabled:(params.row.certState!='审核中'?true:false)
                                         },
                                         style: {
                                             color:"rgb(127, 219, 115)",
@@ -163,10 +165,12 @@ export default {
                                         placement: "top-end",
                                     }
                                 },[
-                                h('Icon', {
+                                h('Button', {
                                         props: {
-                                            type: 'md-close',
-                                            size:'24'
+                                            shape:'circle',
+                                            icon: 'md-close',
+                                            type:"error",
+                                            disabled:(params.row.certState!='审核中'?true:false)
                                         },
                                         style: {
                                             color:"rgb(211, 110, 70)",
