@@ -23,17 +23,16 @@ const store = new Vuex.Store({
         },
         addTag(state,tag){
           //先判断数组当中是否已经存在该tag
-          const isResult = state.tagList.some(item => {
+          let flag = false;
+          state.tagList.forEach(item => {
             if(item.path == tag.path){
               item = tag;
-              return true;
-            }else{
-              return false;
+              flag = true;
             }
           });
-          if (isResult) return;
-        
-          state.tagList.push(tag);
+          if(!flag){
+            state.tagList.push(tag);
+          }
         },
         delTag(state,tag){
           for (let i = 0; i <= state.tagList.length; i++) {

@@ -409,6 +409,7 @@ export default {
         open(flag,user){
             this.modal = true;
             if(flag){
+                this.modifyFlag = false;
                 this.userInfo = user;
                 this.userInfo.userState = this.userInfo.userState == "启用"? "START":"STOP";
             }else{

@@ -10,8 +10,10 @@
                         <div>
                             时间：<DatePicker 
                                 :value="actDate" 
-                                type="daterange"  
+                                type="daterange" 
+                                size="small" 
                                 @on-change="tiemChange" ></DatePicker>
+                                <Button shape="circle" icon="ios-search" @click="queryScore"></Button>
                         </div>
                         <p title="20147852369">账号：<span>{{scoreInfo.userNumber}}</span></p>
                         <p  title="20147852369">姓名：<span>{{scoreInfo.userName}}</span></p>
@@ -258,12 +260,15 @@ export default {
         this.getActScoreSort();
     },
     methods:{
-        tiemChange(event){
-            this.startDate = event[0];
-            this.endDate = event[1];
+        queryScore(){
             this.$nextTick(()=>{
                 this.getScoreInfos();
             })
+        },
+        tiemChange(event){
+            this.startDate = event[0];
+            this.endDate = event[1];
+            
         },
         getScoreInfos(){
             let param = {

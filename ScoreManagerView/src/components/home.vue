@@ -41,10 +41,12 @@
           <Row class="bread">
               <TagPage></TagPage>
           </Row>
-          <div id="contentView" class="content-view">
+          <div id="contentView" class="content-view" v-if="$route.path.indexOf('/home')==-1">
             <router-view></router-view>
           </div>
-          
+          <div  id="contentView" class="content-view" v-if="$route.path.indexOf('/home')!=-1">
+            <img v-show="homepath" src="../images/ytu1.jpg" class="homeview" />
+          </div>
         </Content>
       </Layout>
     </Layout>
@@ -80,13 +82,17 @@ export default {
       menuList:[],
       modal:false,
       imgDataUrl:'',
+      homepath:false,
     }
   },
   watch:{
     $route:{
       immediate: true, // 一旦监听到路由的变化立即执行
       handler(newval,oldval){
-        if(newval.path == '/home') return;
+        if(newval.path == '/home'){
+            this.homepath = true;
+          return;
+        } 
         this.$store.commit("addTag",this.$router.currentRoute);
       }   
     }

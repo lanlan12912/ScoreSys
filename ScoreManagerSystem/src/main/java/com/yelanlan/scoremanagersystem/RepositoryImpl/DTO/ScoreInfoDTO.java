@@ -13,9 +13,18 @@ public class ScoreInfoDTO implements Serializable {
     private int partEdAct;
     private int pirseAct;
 
-    public ScoreInfoDTO() {
-    }
+//    public ScoreInfoDTO() {
+//    }
 
+    public ScoreInfoDTO(String userNumber, String userName, double totalScore, String ranking, int signEdAct, int partEdAct, int pirseAct) {
+        this.userNumber = userNumber;
+        this.userName = userName;
+        this.totalScore = totalScore;
+        this.ranking = ranking;
+        this.signEdAct = signEdAct;
+        this.partEdAct = partEdAct;
+        this.pirseAct = pirseAct;
+    }
 
     public String getUserNumber() {
         return userNumber;

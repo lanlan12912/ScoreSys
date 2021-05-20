@@ -337,14 +337,7 @@ public class ParticipateService implements IParticipateService {
     @Override
     public IMessage getMyScoreInfo(User user,Date startDate,Date endDate ){
         try {
-            ScoreInfoDTO scoreInfoDTO = new ScoreInfoDTO();
-            scoreInfoDTO.setUserNumber(user.getUserNumber());
-            scoreInfoDTO.setUserName(user.getUserName());
-            scoreInfoDTO.setTotalScore(0);
-            scoreInfoDTO.setSignEdAct(0);
-            scoreInfoDTO.setPartEdAct(0);
-            scoreInfoDTO.setPartEdAct(0);
-            scoreInfoDTO.setRanking("0");
+            ScoreInfoDTO scoreInfoDTO = new ScoreInfoDTO(user.getUserNumber(),user.getUserName(),0,"0",0,0,0);
             Department department = departmentDAO.findDepartById(user.getDepartmentId());
             if(null!=department){
                 scoreInfoDTO.setDepartName(department.getDepartName());
@@ -363,12 +356,6 @@ public class ParticipateService implements IParticipateService {
                     participateInfos = participateDAO.getUserSignAct(user.getUserNumber(),actIDs,PartInEnum.SIGNED.toString());
                     //获取排名
                     ranklist=participateDAO.getUserRank(actIDs);
-                }else {
-                    //获取总分
-                    objTotal = participateDAO.getUserTotalScore(user.getUserNumber()).get(0);
-                    participateInfos = participateDAO.getUserSignAct(user.getUserNumber(),PartInEnum.SIGNED.toString());
-                    //获取排名
-                    ranklist=participateDAO.getUserRank();
                 }
             }else {
                 //获取总分
