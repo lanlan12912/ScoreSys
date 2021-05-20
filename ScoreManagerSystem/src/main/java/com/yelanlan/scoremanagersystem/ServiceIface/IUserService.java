@@ -1,7 +1,6 @@
 package com.yelanlan.scoremanagersystem.ServiceIface;
 
 import com.yelanlan.scoremanagersystem.RepositoryIface.Common.IMessage;
-import com.yelanlan.scoremanagersystem.RepositoryImpl.Common.Message;
 import com.yelanlan.scoremanagersystem.RepositoryImpl.User;
 
 import java.util.List;
@@ -22,7 +21,7 @@ public interface IUserService {
      * @param  isModify
      * @return
      * */
-    public User identifyLogin(String userNumber, String userPwd,boolean isModify);
+    public IMessage identifyLogin(String userNumber, String userPwd,boolean isModify);
 
     /**
      * 保存用户信息，即新建用户时用户信息的初始化
@@ -38,7 +37,7 @@ public interface IUserService {
      * @param newPwd
      * @return
      * */
-    public Message modifyPwd(String userNumber, String oldPwd, String newPwd);
+    public IMessage modifyPwd(String userNumber, String oldPwd, String newPwd);
 
     /**
      * 保存当前登陆的用户

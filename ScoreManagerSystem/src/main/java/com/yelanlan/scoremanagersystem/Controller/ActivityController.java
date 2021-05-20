@@ -57,7 +57,7 @@ public class ActivityController {
         if(!ParamUtils.allNotNull(map.get("id"))){
             return activityService.crtActivity(map,user);
         }else {
-            return activityService.updateActInfo(map);
+            return activityService.updateActInfo(map,user);
         }
     }
 

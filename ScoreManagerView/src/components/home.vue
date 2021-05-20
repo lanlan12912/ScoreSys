@@ -7,14 +7,15 @@
           <Col span="1">
             <Icon @click.native="collapsedSider" :class="rotateIcon" class="colseIcon"  type="md-menu" size="24"></Icon>
           </Col>
-          <Col span="5" class="rightHead">
+          <Col span="6" class="rightHead">
             <Row>
-              <Col span="6"><img :src="this.currentUser.headAvatar==null||this.currentUser.headAvatar==''?head:this.currentUser.headAvatar" class="headAvatar" @click="uploadHead"/></Col>
-              <Col span="12">
+              <Col span="6"><span  @click="modifyPwd" class="extSpan">修改密码</span></Col>
+              <Col span="4"><img :src="this.currentUser.headAvatar==null||this.currentUser.headAvatar==''?head:this.currentUser.headAvatar" class="headAvatar" @click="uploadHead"/></Col>
+              <Col span="8">
                  <span class="name">{{currentUser.userRank=='STUDENT'?'普通学生':(currentUser.userRank=='TEACHER'?'老师':(currentUser.userRank=='ADMIN'?'管理员':'学生干部'))}}
                    :{{currentUser.userName}}</span>
               </Col>
-              <Col span="6">
+              <Col span="4">
                 <span  @click="loginOut" class="extSpan"><Icon type="md-power" />退出</span>
               </Col>
             </Row>
@@ -61,6 +62,40 @@
       langType='zh'
       :noRotate='false'
       url=""></myUpload>
+    <Modal
+      v-model="modal1"
+      title="修改密码"
+      width="400"
+      @on-ok="ok"
+      @on-cancle="cancle"
+      >
+      <Form ref="pwdForm" :model="formInline" :rules="ruleInline"  class="inputbox">
+        <FormItem prop="userNumber" :label-width= "10">
+          <Input type="text" v-model="formInline.userNumber" placeholder="账号" autocomplete="off" >
+            <Icon type="ios-person-outline" slot="prepend"></Icon>
+          </Input>
+          <Input type="text" v-model="formInline.userNumber" placeholder="账号" autocomplete="off" v-show="false">
+            <Icon type="ios-person-outline" slot="prepend"></Icon>
+          </Input>
+        </FormItem>
+        <FormItem prop="oldPwd" :label-width="10">
+          <Input name="password" v-model="formInline.oldPwd" placeholder="旧密码" autocomplete="off" v-show="false">
+            <Icon type="ios-lock-outline" slot="prepend"></Icon>
+          </Input>
+           <Input type="password" v-model="formInline.oldPwd" placeholder="旧密码" autocomplete="off">
+            <Icon type="ios-lock-outline" slot="prepend"></Icon>
+          </Input>
+        </FormItem>
+        <FormItem prop="newPwd" :label-width="10">
+          <Input name="password" v-model="formInline.newPwd" placeholder="新密码" autocomplete="off" v-show="false">
+            <Icon type="ios-lock-outline" slot="prepend"></Icon>
+          </Input>
+           <Input type="password" v-model="formInline.newPwd" placeholder="新密码" autocomplete="off">
+            <Icon type="ios-lock-outline" slot="prepend"></Icon>
+          </Input>
+        </FormItem>
+      </Form>
+    </Modal> 
   </div>
 </template>
 <script>
@@ -76,6 +111,26 @@ export default {
   },
   data(){
     return{
+      modal1:false,
+      formInline:{
+        userNumber:'',
+        newPwd:'',
+        oldPwd:'',
+       
+      },
+      ruleInline:{
+        userNumber:[
+          { required: true, message: '请输入账号', trigger: 'blur' }
+        ],
+        oldPwd:[
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { type: 'string', min: 6,max:10, message: '密码长度不能少于6位，不能多于10位', trigger: 'blur' }
+        ],
+        newPwd:[
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          { type: 'string', min: 6,max:10, message: '密码长度不能少于6位，不能多于10位', trigger: 'blur' }
+        ],
+      },
       head:require('../images/head.png'),
       isCollapsed:false,
       currentUser:'',
@@ -124,6 +179,37 @@ export default {
     }
   },
   methods:{
+    modifyPwd(){
+      this.modal1 = true;
+      this.$refs.pwdForm.resetFields();
+      this.formInline.userNumber = '';
+      this.formInline.oldPwd = '';
+      this.formInline.newPwd = '';
+    },
+    ok(){
+      this.$refs.pwdForm.validate((valid)=>{
+          if(valid){
+            let param = this.formInline;
+            this.$http.post("/modifyPwd",param).then(
+              res=>{
+                if(res.success){
+                  this.$Message.success(res.msg);
+                  this.modal1=false;
+                  this.$router.push("/login")
+                }else{
+                  this.$Message.error(res.msg);
+                }
+              }
+            ).catch(err=>{this.$Message.error("请求异常");})
+          }
+      })
+    },
+    cancle(){
+      this.modal1=false;
+      this.formInline.userNumber = '';
+      this.formInline.oldPwd = '';
+      this.formInline.newPwd = '';
+    },
     changeMenu(path){
       this.$router.push({path:path})
     },

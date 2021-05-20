@@ -17,8 +17,9 @@ public interface UserDAO  extends JpaRepository<User,String> , JpaSpecificationE
 
     //根据用户账号修改用户密码
     @Modifying
+    @Transactional
     @Query("update User u set u.userPwd = ?1 where u.userNumber = ?2")
-    int setFixedUserNumber(String userNumber, String userPwd);
+    int updateUserNumber(String userPwd, String userNumber);
 
     //根据一个院/系id查询用户
     @Query("select u from User u where u.departmentId = ?1 order by u.userNumber asc")

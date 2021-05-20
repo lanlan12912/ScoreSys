@@ -102,20 +102,24 @@ public class UserService implements IUserService {
      * @return
      * */
     @Override
-    public User identifyLogin(String userNumber, String userPwd,boolean isModify){
-        User user = null;
+    public IMessage identifyLogin(String userNumber, String userPwd,boolean isModify){
         try {
             //先从数据库中查询用户
-            user = userDAO.findUserByUserNumber(userNumber);
+            User user = userDAO.findUserByUserNumber(userNumber);
             if(null == user){//该用户不存在
-                return null;
+                return new Message(false,"用户不存在");
+            }
+            if(UserStateEnum.valueOf(user.getUserState()) == UserStateEnum.STOP){//用户和已被停用
+                return new Message(false,"用户已被停用，请联系管理员");
             }
             //用户存在，验证密码是否正确
             MessageDigest md5 = MessageDigest.getInstance("MD5");
             BASE64Encoder baseEncoder = new BASE64Encoder();
             String value = baseEncoder.encode(md5.digest(userPwd.getBytes("utf-8")));
             if(user.getUserPwd().equals(value)){//密码正确，返回用户信息
-                return user;
+                Message message = new Message(true,"登录成功");
+                message.setData(user);
+                return message;
             }else {//密码不正确，返回null；
                 if(isModify){//修改密码无需锁定账户
                     return null;
@@ -125,7 +129,7 @@ public class UserService implements IUserService {
             }
         }catch (Exception e) {
             e.printStackTrace();
-            return null;
+            return new Message(false,"系统异常");
         }
     }
 
@@ -171,15 +175,16 @@ public class UserService implements IUserService {
      * @return
      * */
     @Override
-    public Message modifyPwd(String userNumber, String oldPwd,String newPwd){
+    public IMessage modifyPwd(String userNumber, String oldPwd,String newPwd){
         try {
             User user = findUserByNumber(userNumber);
             if(user == null){
                 return new Message(false,"用户不存在");
             }
+            IMessage message = identifyLogin(user.getUserNumber(),oldPwd,true);
             //验证旧密码是否正确
-            if(null == identifyLogin(user.getUserNumber(),oldPwd,true)){
-                return new Message(false,"密码错误");
+            if(!message.isSuccess() ){
+                return message;
             }
             //将用户的新密码加密
             MessageDigest md5 = MessageDigest.getInstance("MD5");
@@ -187,7 +192,7 @@ public class UserService implements IUserService {
             String password = baseEncoder.encode(md5.digest(newPwd.getBytes("utf-8")));
             //将加密的放入user实体
             user.setUserPwd(password);
-            userDAO.setFixedUserNumber(user.getUserNumber(),user.getUserPwd());//更新密码
+            userDAO.updateUserNumber(user.getUserPwd(),user.getUserNumber());//更新密码
             return new Message(true,"密码修改成功");
         }catch (Exception e){
             e.printStackTrace();
@@ -213,7 +218,7 @@ public class UserService implements IUserService {
                         predicateList.add(criteriaBuilder.equal(root.get("userNumber"),String.valueOf(map.get("userNumber"))));
                     }
                     if(ParamUtils.allNotNull(map.get("userName"))){
-                        predicateList.add(criteriaBuilder.equal(root.get("userName"),String.valueOf(map.get("userName"))));
+                        predicateList.add(criteriaBuilder.like(root.get("userName"),String.valueOf(map.get("userName"))));
                     }
                     if(ParamUtils.allNotNull(map.get("departmentIds"))){
                         CriteriaBuilder.In<String> in = criteriaBuilder.in(root.get("departmentId"));
@@ -262,6 +267,8 @@ public class UserService implements IUserService {
         try {
             if(ids.size()>0){
                 userDAO.deleteAllByUserNumbers(ids);
+                //删除给用户分配的角色关联关系
+                roleResDAO.deleteAllByRoleIds(ids);
                 return new Message(true,"删除成功");
             }
             return new Message(false,"没有可删除的信息");

@@ -18,9 +18,10 @@ public interface IActivityService {
     /**
      * 修改活动信息
      * @param  map
+     * @param  user
      * @return
      * */
-    public IMessage updateActInfo(Map<String,String> map);
+    public IMessage updateActInfo(Map<String,String> map,User user);
 
     /**
      * 分页查询所有活动

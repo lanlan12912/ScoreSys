@@ -16,7 +16,6 @@
                 </Input>
             </FormItem>
             <FormItem class="login-no-bottom">
-                
             </FormItem>
             <FormItem  class="login-no-bottom">
               <Row>
@@ -51,7 +50,7 @@
             ],
             password: [
               { required: true, message: '请输入密码', trigger: 'blur' },
-              { type: 'string', min: 6, message: '账号密码长度不能少于6位', trigger: 'blur' }
+              { type: 'string', min: 6,max:10, message: '密码长度不能少于6位，不能多于10位', trigger: 'blur' }
             ]
           }
         }
@@ -92,6 +91,7 @@
           });
         },
         reset(form){
+          this.$refs.formInline.resetFields();
           this.formInline.user='';
           this.formInline.password='';
         }

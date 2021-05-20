@@ -30,7 +30,8 @@ public class LoginController {
                 return new Message(false,"账号密码必能为空");
             }
             //验证用户名，密码是否正确
-            User user = userService.identifyLogin(map.get("userNumber").toString(),map.get("userPwd").toString(),false);
+            IMessage message = userService.identifyLogin(map.get("userNumber").toString(),map.get("userPwd").toString(),false);
+            User user = message.getData() == null?null: (User) message.getData();
             if(null != user){
                 //生成Token令牌
                 Cookie cookie = new Cookie("token", JwtUtil.getToken(user));
@@ -38,7 +39,7 @@ public class LoginController {
                 response.addCookie(cookie);
                 return  new Message(true,"登录成功");
             }else {
-                return new Message(false,"用户名或密码错误");
+                return message;
             }
         }catch (Exception e){
             e.printStackTrace();

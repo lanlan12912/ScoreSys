@@ -80,10 +80,11 @@ public class ActivityService implements IActivityService {
     /**
      * 修改活动信息
      * @param  map
+     * @param  user
      * @return
      * */
     @Override
-    public IMessage updateActInfo(Map<String,String> map){
+    public IMessage updateActInfo(Map<String,String> map,User user){
         try {
             Activity activity = activityDAO.findAllById(map.get("id"));
             if(activity == null){
@@ -111,6 +112,9 @@ public class ActivityService implements IActivityService {
             activity.setActSite(map.get("actSite"));
             activity.setActHost(map.get("actHost"));
             activity.setActDesc(map.get("actDesc"));
+            //更新修改人与修改时间
+            activity.setCrtUser(user.getUserNumber());
+            activity.setModifyDate(DateUtils.getCurrentTime());
             //修改后重新审核
             activity.setActJudge(ActStateEnum.INJUDGE.toString());
             //再新建一条记录

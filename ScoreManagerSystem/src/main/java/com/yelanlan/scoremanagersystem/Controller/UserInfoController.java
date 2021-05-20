@@ -56,11 +56,14 @@ public class UserInfoController {
      * 修改密码
      */
     @RequestMapping("/modifyPwd")
-    public IMessage modifyPwd(String userNumber,String oldPwd,String newPwd){
+    public IMessage modifyPwd(@RequestBody Map<String,String> map){
         try{
-            if(ParamUtils.allNotNull(userNumber,oldPwd,newPwd)){
+            if(!ParamUtils.allNotNull(map.get("userNumber"),map.get("oldPwd"),map.get("newPwd"))){
                 return new Message(false,"请将信息填写完整");
             }
+            String userNumber = map.get("userNumber");
+            String oldPwd = map.get("oldPwd");
+            String newPwd = map.get("newPwd");
             if(newPwd.equals(oldPwd)){
                 return new Message(false,"新密码不能与旧密码相同");
             }
