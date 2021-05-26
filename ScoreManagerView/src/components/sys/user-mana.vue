@@ -182,7 +182,7 @@ export default {
                         buttons.push(
                             h("Tooltip",{
                                     props:{
-                                        content:"授权",
+                                        content:"分配角色",
                                         placement: "top-end",
                                     }
                                 },[

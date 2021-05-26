@@ -165,7 +165,7 @@ public class ActivityController {
         }
         User user = userService.getCurrentUser();
         if(user == null){
-            return new Message(false,"请登录后在操作");
+            return new Message(false,"请登录后操作");
         }
         String imgFile = map.get("certImg");
         String imgType = ".png";

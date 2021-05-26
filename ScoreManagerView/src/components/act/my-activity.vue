@@ -19,7 +19,7 @@
                     </Col>
                     <Col span="12">
                         <FormItem prop="actName" :label-width="80" :label="actInfo.actType=='ACT'?'活动名称':'团体名称'">
-                            <Input type="text" v-model="actInfo.actName"></Input>
+                            <Input type="text" v-model="actInfo.actName" :placeholder="actInfo.actType=='ACT'?'':'例如：计171-1班干综合测评'"></Input>
                         </FormItem>
                     </Col>
                 </Row>

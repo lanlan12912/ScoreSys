@@ -43,7 +43,7 @@
                 </Col>
                 <Col span="13">
                     <div class="imgLunBo">
-                        <Carousel loop>
+                        <Carousel loop autoplay>
                             <CarouselItem v-if="actImgs.length<=0">
                                 <img src="../../images/nodata1.jpg" />
                             </CarouselItem>

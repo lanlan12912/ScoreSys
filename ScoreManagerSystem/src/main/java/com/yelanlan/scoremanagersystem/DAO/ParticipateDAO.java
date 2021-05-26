@@ -54,12 +54,12 @@ public interface ParticipateDAO extends JpaRepository<ParticipateInfo,String>, J
 
     @Query("select new com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.UserScoreDTO(u.userNumber,u.userName,u.headAvatar,d.departName,sum(p.measureScore)) " +
             "from ParticipateInfo p,User u,Department d where p.userNumber in(?1) and u.userNumber = p.userNumber " +
-            "and u.departmentId = d.id group by p.userNumber order by p.measureScore desc")
+            "and u.departmentId = d.id group by p.userNumber")
     List<UserScoreDTO> getAllByUsers(List<String> userNumbers);
 
     @Query("select new com.yelanlan.scoremanagersystem.RepositoryImpl.DTO.UserScoreDTO(u.userNumber,u.userName,u.headAvatar,d.departName,sum(p.measureScore)) " +
             "from ParticipateInfo p,User u,Department d where u.userNumber = p.userNumber " +
-            "and u.departmentId = d.id group by p.userNumber order by p.measureScore desc")
+            "and u.departmentId = d.id group by p.userNumber")
     List<UserScoreDTO> getAll();
 
 }

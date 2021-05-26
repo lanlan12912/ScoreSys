@@ -131,7 +131,7 @@ public class UserInfoController {
         }
         User user = userService.getCurrentUser();
         if(user == null){
-            return new Message(false,"请登录后在操作");
+            return new Message(false,"请登录后操作");
         }
         String imgFile = map.get("imgFile");
         String imgType = ".png";

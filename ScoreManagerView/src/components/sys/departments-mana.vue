@@ -15,7 +15,7 @@
                         <Option value="CLASS" key="CLASS">班</Option>
                     </Select>
                 </FormItem>
-                <FormItem label="归属单位" :label-width="80" prop="parentId">
+                <FormItem label="上级 院/系" :label-width="80" prop="parentId">
                     <Dropdown ref="dropdown" trigger="click" placement="bottom-start" style="width:100%" >
                         <Input v-model="departInfo.parentName" readonly :disabled="!modifyFlag" />
                         <DropdownMenu slot="list">
@@ -23,7 +23,7 @@
                         </DropdownMenu>
                     </Dropdown>
                 </FormItem>
-                <FormItem label="院/系 描述" :label-width="80" prop="departDesc">
+                <FormItem label="院/系 介绍" :label-width="80" prop="departDesc">
                     <Input type="textarea" v-model="departInfo.departDesc" />
                 </FormItem>
             </Form>

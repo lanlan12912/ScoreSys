@@ -145,6 +145,9 @@ public class UserService implements IUserService {
             user.setUserName(map.get("userName"));
             user.setDepartmentId(map.get("departmentId"));
             user.setUserRank(UserRankEnum.valueOf(map.get("userRank")).toString());
+            if(!ParamUtils.allNotNull(map.get("userState"))){
+                user.setUserState(UserStateEnum.START.toString());
+            }
             user.setUserState(map.get("userState"));
             user.setUserTeleno(ParamUtils.allNotNull(map.get("userTeleno"))?map.get("userTeleno"):"");
             user.setUserDesc(ParamUtils.allNotNull(map.get("userDesc"))?map.get("userDesc"):"");

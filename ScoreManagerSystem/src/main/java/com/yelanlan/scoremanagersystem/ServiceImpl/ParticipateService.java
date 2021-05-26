@@ -60,7 +60,7 @@ public class ParticipateService implements IParticipateService {
             //先根据当前用户与活动id获取到参与信息
             ParticipateInfo participateInfo = participateDAO.findAllByUserNumberAndActId(user.getUserNumber(),actId);
             if(null == participateInfo){
-                return new Message(false,"您还没有参与该活动");
+                return new Message(false,"您还没有报名该活动");
             }
             boolean flag = FileUtils.writeImg(imgFile,imgType,name,path);
             if(flag){
@@ -423,6 +423,7 @@ public class ParticipateService implements IParticipateService {
             }else {
                 scoreDTOS = participateDAO.getAll();
             }
+            scoreDTOS=scoreDTOS.stream().sorted(Comparator.comparing(UserScoreDTO::getScore).reversed()).collect(Collectors.toList());
             Message message = new Message(true,"查询成功");
             message.setData(scoreDTOS);
             return message;

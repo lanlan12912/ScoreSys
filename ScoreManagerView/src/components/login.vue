@@ -1,6 +1,7 @@
 <template>
-  <Row class="back">
-    <Col>
+  <div class="back">
+    <Row>
+      <Col>
         <Form ref="formInline" :model="formInline" :rules="ruleInline"  class="inputbox">
            <FormItem :label-width= "5">
                <p class="tilte">综合测评管理系统</p>
@@ -24,17 +25,19 @@
                     <Checkbox label="记住密码"></Checkbox>
                   </CheckboxGroup>
                 </Col>
-                <Col span="4" offset = "4">
+                <Col span="4" offset = "1">
                   <Button type="primary" @click="handleSubmit('formInline')">登录</Button>
                 </Col>
-                <Col span="4" offset = "4">
+                <Col span="4" offset = "2">
                   <Button type="primary" @click="reset('formInline')">重置</Button>
                 </Col>
               </Row>
             </FormItem>
+            <h3>忘记密码，请联系：17861122738</h3>
         </Form>
-    </Col>
-</Row>
+      </Col>
+    </Row>
+</div>
 </template>
 <script>
     export default {
@@ -94,7 +97,7 @@
           this.$refs.formInline.resetFields();
           this.formInline.user='';
           this.formInline.password='';
-        }
+        },
       }
     }
 </script>
@@ -138,6 +141,12 @@
     .login-no-bottom {
       margin-bottom: 10px;
     }
+    h3{
+      margin-top: 20px;
+      text-align: left;
+      color: rgb(111, 197, 178);
+    }
   }
+  
 }
 </style>

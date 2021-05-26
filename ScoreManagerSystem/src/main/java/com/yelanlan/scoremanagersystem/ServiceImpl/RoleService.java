@@ -171,10 +171,12 @@ public class RoleService implements IRoleService {
         try {
             //先将角色已绑定的资源关系删除
             roleResDAO.deleteAllByRoleId(roleId);
-            for (String resId : resIds){
-                String relId = UUID.randomUUID().toString().replaceAll("-", "");
-                RoleRes roleRes = new RoleRes(relId,roleId,resId);
-                roleResDAO.save(roleRes);
+            if(resIds.size()>0){
+                for (String resId : resIds){
+                    String relId = UUID.randomUUID().toString().replaceAll("-", "");
+                    RoleRes roleRes = new RoleRes(relId,roleId,resId);
+                    roleResDAO.save(roleRes);
+                }
             }
             return new Message(true,"成功授权");
         }catch (Exception e){
@@ -240,11 +242,13 @@ public class RoleService implements IRoleService {
             List<String> roleIds = (List<String>) map.get("targetRoles");
             //先将原有的记录删除
             roleResDAO.deleteAllByRoleId(userNumber);
-            for(String id : roleIds ){
-                String ralId = UUID.randomUUID().toString().replaceAll("-", "");
-                //用户id为角色id，角色id为资源id；
-                RoleRes ral = new RoleRes(ralId,userNumber,id);
-                roleResDAO.save(ral);
+            if(roleIds.size()>0){
+                for(String id : roleIds ){
+                    String ralId = UUID.randomUUID().toString().replaceAll("-", "");
+                    //用户id为角色id，角色id为资源id；
+                    RoleRes ral = new RoleRes(ralId,userNumber,id);
+                    roleResDAO.save(ral);
+                }
             }
             return new Message(true,"成功分配角色");
         }catch (Exception e){
